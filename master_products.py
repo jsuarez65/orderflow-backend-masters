@@ -29,8 +29,13 @@ structlog.configure(
 )
 
 def get_connection():
-    return psycopg2.connect(host="localhost", port="5432",
-        dbname="orderflow", user="postgres", password="juliadri")
+            return psycopg2.connect(
+                    host="ep-dry-art-acz5gndj-pooler.sa-east-1.aws.neon.tech",
+                    port="5432",
+                    dbname="orderflow",
+                    user="neondb_owner",
+                    password="npg_5lr2ZzgDWuTP",
+                    sslmode="require")
 
 db = get_connection()
 log = structlog.get_logger()
