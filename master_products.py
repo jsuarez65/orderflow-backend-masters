@@ -34,7 +34,7 @@ def get_connection():
                     port="5432",
                     dbname="orderflow",
                     user="neondb_owner",
-                    password="npg_5lr2ZzgDWuTP",
+                    password="npg_oYRmQ2e0IHaT",
                     sslmode="require")
 
 db = get_connection()
