@@ -31,25 +31,9 @@ def get_connection():
         sslmode="require"
     )
 
-# =====================================================
-# CLIENTES
-# =====================================================
-
-@app.route('/clientes', methods=['GET'])
-def get_clientes():
-    log.info("Obteniendo clientes")
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT cuit, razon_social, telefono, email FROM clientes ORDER BY razon_social")
-    rows = cur.fetchall()
-    cur.close()
-    conn.close()
-    
-    clientes = [{"cuit": r[0], "razon_social": r[1], "telefono": r[2], "email": r[3]} for r in rows]
-    return jsonify(clientes)
-
 @app.route('/clientes/<cuit>', methods=['GET'])
 def get_cliente(cuit):
+
     log.info("Obteniendo cliente", cuit=cuit)
     conn = get_connection()
     cur = conn.cursor()
