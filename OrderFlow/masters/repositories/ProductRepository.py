@@ -8,25 +8,20 @@ class ProductRepository:
         self.db = DatabaseConfiguration.getConnection()
         self.log = LogConfiguration.getLogger()
 
-    def insertProduct(self, product):
-        
+    def save(self, product):
+                
         sqlCommand = None
 
         try:
             sqlCommand = self.db.cursor()
 
-            sqlCommand.execute("""
-                INSERT INTO Productos (codigo_interno, sku, codigo_barras, descripcion, 
-                stock_minimo, stock_maximo)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (
-                product['codigo_interno'],
-                product['sku'],
-                product['codigo_barras'],
-                product['descripcion'],
-                product['stock_minimo'],
-                product['stock_maximo']
-            ))
+            productFound = self.findById(product['codigo_interno'])
+
+            if productFound:
+                self.log.warning("save - El producto ya existe, se procederá a actualizarlo: ", body=product)
+                self._update(sqlCommand, product)
+            else:
+                self._insert(sqlCommand, product)
 
             self.db.commit()
             return True
@@ -40,3 +35,50 @@ class ProductRepository:
         finally:
             if sqlCommand:
                 sqlCommand.close()
+
+    def findById(self, codigo_interno):
+
+        sqlCommand = None
+
+        try:
+            sqlCommand = self.db.cursor()
+            sqlCommand.execute("SELECT * FROM Productos WHERE codigo_interno = %s", (codigo_interno,))
+            result = sqlCommand.fetchone()
+            return result is not None
+
+        except Exception as ex:
+            self.log.error(f"findById - Error al buscar producto por ID: {str(ex)}")
+            return False
+
+        finally:
+            if sqlCommand:
+                sqlCommand.close()
+
+    def _insert(self, sqlCommnand, product):
+        
+        sqlCommand.execute("""
+            INSERT INTO Productos (codigo_interno, sku, codigo_barras, descripcion, 
+            stock_minimo, stock_maximo)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            product['codigo_interno'],
+            product['sku'],
+            product['codigo_barras'],
+            product['descripcion'],
+            product['stock_minimo'],
+            product['stock_maximo']
+        ))
+
+    def _update(self, sqlCommand, product):
+        
+        sqlCommand.execute("""
+            UPDATE Productos SET sku=%s, codigo_barras=%s, descripcion=%s, 
+            stock_minimo=%s, stock_maximo=%s
+            WHERE codigo_interno=%s""", (
+                product['sku'],
+                product['codigo_barras'],
+                product['descripcion'],
+                product['stock_minimo'],
+                product['stock_maximo'],
+                product['codigo_interno']
+            ))
