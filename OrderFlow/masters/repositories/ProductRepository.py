@@ -1,6 +1,6 @@
 
-import DatabaseConfiguration
-import LogConfiguration
+from configuration.DatabaseConfiguration import DatabaseConfiguration
+from configuration.LogConfiguration import LogConfiguration
 
 class ProductRepository:
 
@@ -8,7 +8,7 @@ class ProductRepository:
         self.db = DatabaseConfiguration.getConnection()
         self.log = LogConfiguration.getLogger()
 
-    def insertProduct(product):
+    def insertProduct(self, product):
         
         sqlCommand = None
 
