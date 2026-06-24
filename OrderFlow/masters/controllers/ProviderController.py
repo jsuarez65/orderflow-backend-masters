@@ -1,6 +1,6 @@
 from flask import Blueprint, request 
-import ProviderService  
-import logConfiguration
+from services.ProviderService import ProviderService
+from configuration.LogConfiguration import LogConfiguration
 
 
 ProviderBlueprint = Blueprint('provider', __name__, url_prefix='/master/provider')
