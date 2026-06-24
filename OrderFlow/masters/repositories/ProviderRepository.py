@@ -1,6 +1,7 @@
 
-import DatabaseConfiguration
-import LogConfiguration
+from configuration.DatabaseConfiguration import DatabaseConfiguration
+from configuration.LogConfiguration import LogConfiguration
+
 
 class ProviderRepository:
     def __init__(self):
