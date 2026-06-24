@@ -19,3 +19,17 @@ def createProduct():
         return {"message": "El producto se ingresó correctamente"}, 200
     else:
         return {"message": "Error al ingresar el producto"}, 500
+
+@ProductBlueprint.route('', methods=['PUT'])
+def updateProduct():
+
+    log = LogConfiguration.getLogger()
+    
+    product = request.get_json()
+
+    log.info("updateProduct - Ingresa con product: ", body=product)
+
+    if (productService.updateProduct(product) == True):
+        return {"message": "El producto se actualizó correctamente"}, 200
+    else:
+        return {"message": "Error al actualizar el producto"}, 500

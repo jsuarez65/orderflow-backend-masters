@@ -36,13 +36,13 @@ class ProductRepository:
             if sqlCommand:
                 sqlCommand.close()
 
-    def findById(self, codigo_interno):
+    def findById(self, codigoInterno):
 
         sqlCommand = None
 
         try:
             sqlCommand = self.db.cursor()
-            sqlCommand.execute("SELECT * FROM Productos WHERE codigo_interno = %s", (codigo_interno,))
+            sqlCommand.execute("SELECT * FROM Productos WHERE codigo_interno = %s", (codigoInterno,))
             result = sqlCommand.fetchone()
             return result is not None
 
@@ -54,7 +54,7 @@ class ProductRepository:
             if sqlCommand:
                 sqlCommand.close()
 
-    def _insert(self, sqlCommnand, product):
+    def _insert(self, sqlCommand, product):
         
         sqlCommand.execute("""
             INSERT INTO Productos (codigo_interno, sku, codigo_barras, descripcion, 
