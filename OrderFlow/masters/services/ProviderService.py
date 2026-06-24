@@ -1,5 +1,5 @@
-import providerRepository
-import LogConfiguration
+from repositories.ProviderRepository import ProviderRepository
+from configuration.LogConfiguration import LogConfiguration
 
 providerRepository = ProviderRepository() 
 
