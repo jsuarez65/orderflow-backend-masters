@@ -2,10 +2,12 @@ from flask import Blueprint, request
 import ProviderService  
 import logConfiguration
 
-providerBlueprint = Blueprint('provider', __name__,"url_prefix='/master/provider'")
+
+ProviderBlueprint = Blueprint('provider', __name__, url_prefix='/master/provider')
 
 
-@providerBlueprint.route('', methods=['POST'])
+
+@ProviderBlueprint.route('', methods=['POST'])
 def createProvider():
     
     log = LogConfiguration.getLogger()

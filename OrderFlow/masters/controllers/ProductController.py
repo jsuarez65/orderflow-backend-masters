@@ -1,8 +1,8 @@
 from flask import Blueprint, request
-import ProductService
-import LogConfiguration
+from services.ProductService import ProductService
+from configuration.LogConfiguration import LogConfiguration
 
-ProductBlueprint = Blueprint('product', __name__, "url_prefix='/master/product'")
+ProductBlueprint = Blueprint('product', __name__, url_prefix='/master/product')
 
 productService = ProductService()
 

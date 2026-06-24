@@ -1,1 +1,6 @@
 master_product.log
+/OrderFlow/masters/configuration/__pycache__
+/OrderFlow/masters/controllers/__pycache__
+/OrderFlow/masters/repositories/__pycache__
+/OrderFlow/masters/services/__pycache__
+OrderFlow/masters/master_service.log

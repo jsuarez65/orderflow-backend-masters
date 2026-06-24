@@ -8,7 +8,7 @@ import psycopg2, structlog, logging
 
 app = Flask(__name__)
 
-CORS(app)
+
 
 
 logging.basicConfig(

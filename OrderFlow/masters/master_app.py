@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
-import LogConfiguration
-from routes.ProductController import ProductBlueprint
-from routes.ProviderController import ProviderBlueprint
+from configuration.LogConfiguration import LogConfiguration
+from controllers.ProductController import ProductBlueprint
+from controllers.ProviderController import ProviderBlueprint
 
 masterMain = Flask(__name__)
 CORS(masterMain)
