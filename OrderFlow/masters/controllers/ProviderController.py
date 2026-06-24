@@ -5,7 +5,7 @@ from configuration.LogConfiguration import LogConfiguration
 
 ProviderBlueprint = Blueprint('provider', __name__, url_prefix='/master/provider')
 
-
+providerService = ProviderService()
 
 @ProviderBlueprint.route('', methods=['POST'])
 def createProvider():
@@ -20,3 +20,17 @@ def createProvider():
         return {"message": "El proveedor se ingresó correctamente"}, 200
     else:
         return {"message": "Error al ingresar el proveedor"}, 500
+
+@ProviderBlueprint.route('', methods=['PUT'])
+def updateProvider():
+
+    log = LogConfiguration.getLogger()
+    
+    provider = request.get_json()
+
+    log.info("updateProvider - Ingresa con provider: ", body=provider)
+
+    if (providerService.updateProvider(provider) == True):
+        return {"message": "El proveedor se actualizó correctamente"}, 200
+    else:
+        return {"message": "Error al actualizar el proveedor"}, 500
