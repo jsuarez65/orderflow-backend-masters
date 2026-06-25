@@ -15,7 +15,7 @@ class ProductService:
 
         if productRepository.findById(product['codigo_interno']):
             self.log.warning("createProduct - El producto ya existe: ", body=product)
-            return False
+            return None
 
         return productRepository.save(product)
 

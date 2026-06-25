@@ -15,8 +15,9 @@ def createProduct():
 
     log.info("createProduct - Ingresa con product: ", body=product)
 
-    if (productService.createProduct(product) == True):
-        return {"message": "El producto se ingresó correctamente"}, 200
+    productCreated = productService.createProduct(product)
+    if (productCreated is not None):
+        return productCreated, 200
     else:
         return {"message": "Error al ingresar el producto"}, 500
 
@@ -29,7 +30,8 @@ def updateProduct():
 
     log.info("updateProduct - Ingresa con product: ", body=product)
 
-    if (productService.updateProduct(product) == True):
-        return {"message": "El producto se actualizó correctamente"}, 200
+    productUpdated = productService.updateProduct(product)
+    if (productUpdated is not None):
+        return productUpdated, 200
     else:
         return {"message": "Error al actualizar el producto"}, 500

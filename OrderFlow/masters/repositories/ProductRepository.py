@@ -19,18 +19,18 @@ class ProductRepository:
 
             if productFound:
                 self.log.warning("save - El producto ya existe, se procederá a actualizarlo: ", body=product)
-                self._update(sqlCommand, product)
+                productFound = self._update(sqlCommand, product)
             else:
-                self._insert(sqlCommand, product)
+                productFound = self._insert(sqlCommand, product)
 
             self.db.commit()
-            return True
+            return productFound
 
         except Exception as ex:
             self.db.rollback()
 
             self.log.error(f"createProduct - Error al crear producto: {str(ex)}")
-            return False
+            return None
 
         finally:
             if sqlCommand:
@@ -69,6 +69,8 @@ class ProductRepository:
             product['stock_maximo']
         ))
 
+        return product
+
     def _update(self, sqlCommand, product):
         
         sqlCommand.execute("""
@@ -82,3 +84,5 @@ class ProductRepository:
                 product['stock_maximo'],
                 product['codigo_interno']
             ))
+
+        return product
