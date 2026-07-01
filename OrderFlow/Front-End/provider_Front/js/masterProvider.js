@@ -12,12 +12,10 @@ async function guardarProveedor(event) {
         razon_social: document.getElementById("razon_social").value,
         domicilio: document.getElementById("domicilio").value,
         email: document.getElementById("email").value, 
-        telefono: Number(document.getElementById("telefono").value),
-        localidad_codigo_postal: Number(document.getElementById("localidad_codigo_postal").value),
+        telefono: document.getElementById("telefono").value,
+        localidad_codigo_postal: document.getElementById("localidad_codigo_postal").value,
         provincia_nombre: document.getElementById("provincia_nombre").value
     };
-
-    form.reset();
 
     try {
        
@@ -38,9 +36,8 @@ async function guardarProveedor(event) {
 
         const proveedorGuardado = await response.json();
 
-       
-
         mensaje.textContent = `Proveedor guardado correctamente. ID: ${proveedorGuardado.codigo}`;
+        form.reset();
 
     } catch (error) {
         console.error("Error detallado:", error);

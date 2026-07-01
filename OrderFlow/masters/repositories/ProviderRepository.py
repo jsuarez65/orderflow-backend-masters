@@ -29,7 +29,7 @@ class ProviderRepository:
         except Exception as ex:
             self.db.rollback()
 
-            self.log.error(f"createProvider - Error al crear proveedor: {str(ex)}")
+            self.log.error(f"save - Error al guardar/actualizar proveedor: {str(ex)}")
             return False
 
         finally:
@@ -58,7 +58,7 @@ class ProviderRepository:
         
         sqlCommand.execute("""
             INSERT INTO Proveedores (cuit, razon_social, domicilio, email, telefono, localidad_codigo_postal, provincia_nombre)
-            VALUES (%s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (
             provider['cuit'],
             provider['razon_social'],
