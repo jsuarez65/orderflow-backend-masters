@@ -12,7 +12,7 @@ def getProducts():
     log = LogConfiguration.getLogger()
     
     log.info("getProducts - Ingresa a obtener productos")
-    return {"message": "Error al obtener los productos"}, 500
+    return {"message": "ok"}, 200
 
 @ProductBlueprint.route('', methods=['POST'])
 def createProduct():
