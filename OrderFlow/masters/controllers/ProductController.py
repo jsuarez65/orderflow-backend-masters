@@ -6,6 +6,14 @@ ProductBlueprint = Blueprint('product', __name__, url_prefix='/master/product')
 
 productService = ProductService()
 
+@ProductBlueprint.route('', methods=['GET'])
+def getProducts():
+    
+    log = LogConfiguration.getLogger()
+    
+    log.info("getProducts - Ingresa a obtener productos")
+    return {"message": "Error al obtener los productos"}, 500
+
 @ProductBlueprint.route('', methods=['POST'])
 def createProduct():
 
