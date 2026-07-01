@@ -5,12 +5,11 @@ from configuration.LogConfiguration import LogConfiguration
 
 class ProviderRepository:
    
-       def __init__(self):
+    def __init__(self):
         self.db = DatabaseConfiguration.getConnection()
         self.log = LogConfiguration.getLogger()
 
     def save(self, provider):
-                
         sqlCommand = None
 
         try:
