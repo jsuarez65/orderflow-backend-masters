@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>provedores</title>
+    <link rel="stylesheet" href="css/master_provider.css">
+</head>
+<body>
+   <form id="providerForm">
+        <div class="form-group">
+            <label for="cuit">CUIT:</label>
+            <input type="text" id="cuit" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="razon_social">Razón Social:</label>
+            <input type="text" id="razon_social" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="domicilio">Domicilio:</label>
+            <input type="text" id="domicilio" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="telefono">Teléfono:</label>
+            <input type="text" id="telefono" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="localidad_codigo_postal">Código Postal:</label>
+            <input type="text" id="localidad_codigo_postal" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="provincia_nombre">Provincia:</label>
+            <input type="text" id="provincia_nombre" required>
+        </div>
+        <br>
+        <button type="submit">Guardar</button>
+    </form> 
+
+    <p id="mensaje"></p>
+
+    <script src="js/masterProvider.js"></script>
+    
+</body>
+</html>
