@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maestros</title>
+    <link rel="stylesheet" href="css/master_product.css">
+</head>
+<body>
+   <form id="productoForm">
+        <div class="form-group">
+            <label for="codigo">Código Producto:</label>
+            <input type="text" id="codigo" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <input type="text" id="descripcion" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="sku">Sku:</label>
+            <input type="text" id="sku" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="codigo_barras">Codigo de barras:</label>
+            <input type="number" id="codigo_barras" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="stock_minimo">Stock minimo:</label>
+            <input type="number" id="stock_minimo" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="stock_maximo">Stock maximo:</label>
+            <input type="number" id="stock_maximo" required>
+        </div>
+        <br>
+        <button type="submit">Guardar</button>
+    </form> 
+
+    <p id="mensaje"></p>
+
+    <script src="js/masterProduct.js"></script>
+    
+</body>
+</html>

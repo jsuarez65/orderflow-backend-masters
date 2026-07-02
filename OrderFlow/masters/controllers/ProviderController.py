@@ -1,8 +1,12 @@
 from flask import Blueprint, request
+import logging
 
-ProviderBlueprint = Blueprint('provider', __name__, url_prefix='/master/provider')
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
 
-@ProviderBlueprint.route('', methods=['POST'])
+ProviderBlueprint = Blueprint('provider', __name__, url_prefix='/master/provider') 
+
+@ProviderBlueprint.route('', methods=['POST']) 
 def createProvider():
     
     provider = request.get_json()
