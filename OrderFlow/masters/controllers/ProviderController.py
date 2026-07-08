@@ -42,3 +42,19 @@ def updateProvider():
         return {"message": "El proveedor se actualizó correctamente"}, 200
     else:
         return {"message": "Error al actualizar el proveedor"}, 500
+
+@ProviderBlueprint.route('', methods=['DELETE'])
+def deleteProvider():
+
+    log = LogConfiguration.getLogger()
+    
+    provider = request.get_json()
+
+    log.info("deleteProvider - Ingresa con provider: ", body=provider)
+
+    if (providerService.deleteProvider(provider) == True):
+        return {"message": "El proveedor se eliminó correctamente"}, 200
+    else:
+        return {"message": "Error al eliminar el proveedor"}, 500
+
+
