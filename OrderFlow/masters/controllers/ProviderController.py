@@ -7,6 +7,14 @@ ProviderBlueprint = Blueprint('provider', __name__, url_prefix='/master/provider
 
 providerService = ProviderService()
 
+@ProviderBlueprint.route('', methods=['GET'])
+def getProviders():
+    
+    log = LogConfiguration.getLogger()
+    
+    log.info("getProviders - Ingresa a obtener proveedores")
+    return {"message": "ok"}, 200
+
 @ProviderBlueprint.route('', methods=['POST'])
 def createProvider():
     

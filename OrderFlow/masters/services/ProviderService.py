@@ -15,7 +15,7 @@ class ProviderService:
 
         if providerRepository.findById(provider['cuit']):
             self.log.warning("createProvider - El proveedor ya existe: ", body=provider)
-            return False
+            return None
 
         return providerRepository.save(provider)
 
