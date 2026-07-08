@@ -28,3 +28,15 @@ class ProviderService:
         else:
             self.log.warning("updateProvider - El proveedor no existe: ", body=provider)
             return False
+
+    def deleteProvider(self, provider):
+        
+        self.log.info("deleteProvider - Ingresa con provider: ", body=provider)
+
+        if providerRepository.findById(provider['cuit']):
+            return providerRepository.delete(provider)
+        else:
+            self.log.warning("deleteProvider - El proveedor no existe: ", body=provider)
+            return False
+
+    
