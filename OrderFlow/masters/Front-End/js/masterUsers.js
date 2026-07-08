@@ -9,7 +9,7 @@ async function guardarUsuario(event) {
 
     const usuario = {
         username: document.getElementById("username").value,
-        password: document.getElementById("password").value,
+        password: btoa(document.getElementById("password").value),
         rol: document.getElementById("rol").value
     };
 
@@ -18,7 +18,7 @@ async function guardarUsuario(event) {
     try {
          
         const response = await fetch(
-            "http://localhost:5000/master/user",
+            "http://127.0.0.1:5000/users/",
             {
                 method: "POST",
                 headers: {
