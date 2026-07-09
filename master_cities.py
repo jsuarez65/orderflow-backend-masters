@@ -6,7 +6,6 @@ import logging
 
 app = Flask(__name__)
 
-# 1. Configuración de logging nativo
 logging.basicConfig(
     level=logging.INFO,   
     filename="master_cities.log",
@@ -14,7 +13,6 @@ logging.basicConfig(
     format="%(message)s"
 )
 
-# 2. Configuración de structlog
 structlog.configure(
     processors=[
         structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
@@ -25,13 +23,11 @@ structlog.configure(
 )
 log = structlog.get_logger()
 
-#apuntado al ENDOPINT
 @app.route('/master/cities', methods=['POST'])
 
 
-def import_codigos_postales():
+def import_zipCodes():
 
-    # 1. Buscamos la clave genérica 'file' que enviaremos desde Postman
     file = request.files['file']
 
     if file.filename == '':
@@ -48,23 +44,15 @@ def import_codigos_postales():
 
     cursor = conn.cursor()
 
-    # ==========================================
-    # CARGAR TODOS LOS CODIGOS POSTALES A MEMORIA
-    # ==========================================
-
     cursor.execute("""
         SELECT codigo_postal
         FROM localidades
     """)
 
-    # Set para busquedas O(1)
-    localidades_db = {
+    cities_Db = {
         str(row[0]).strip()
     for row in cursor.fetchall()
     }
-    # ==========================================
-    # LEER EXCEL
-    # ==========================================
 
     workbook = load_workbook(file)
     sheet = workbook.active
@@ -78,7 +66,7 @@ def import_codigos_postales():
             continue
 
         try:
-            # Conversión segura de zipcode (maneja 1001.0 de Excel)
+
             raw_cp = row[0]
             if isinstance(raw_cp, float):
                 codigo_postal = str(int(raw_cp))
@@ -92,7 +80,7 @@ def import_codigos_postales():
             nombre_localidad = str(row[1]).strip().title() if row[1] and str(row[1]).strip() else ""
 
             # === CLAVE: Si ya está en el set, es duplicado (de la DB o del Excel) ===
-            if codigo_postal in localidades_db:
+            if codigo_postal in cities_Db:
                 duplicados_en_excel += 1
                 continue
 
@@ -103,7 +91,7 @@ def import_codigos_postales():
                 ON CONFLICT (codigo_postal) DO NOTHING
             """, (codigo_postal, nombre_localidad))
 
-            localidades_db.add(codigo_postal)
+            cities_Db.add(codigo_postal)
             insertados += 1
 
         except Exception as e:
@@ -114,8 +102,7 @@ def import_codigos_postales():
     cursor.close()
     conn.close()
 
-    # Calculamos cuántos eran duplicados del Excel vs ya estaban en la DB
-    ya_existentes_reales = ya_existentes_en_db  # Los que estaban antes de empezar
+    ya_existentes_reales = ya_existentes_en_db
 
     return jsonify({
         "message": "Importación finalizada",
