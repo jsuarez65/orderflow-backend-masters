@@ -15,7 +15,7 @@ class ProviderService:
 
         if providerRepository.findById(provider['cuit']):
             self.log.warning("createProvider - El proveedor ya existe: ", body=provider)
-            return False
+            return None
 
         return providerRepository.save(provider)
 
@@ -28,3 +28,9 @@ class ProviderService:
         else:
             self.log.warning("updateProvider - El proveedor no existe: ", body=provider)
             return False
+
+   def deleteProvider(cuit):
+    """
+    Lógica de negocio para la eliminación del proveedor.
+    """
+    return providerRepository.deleteProvider(cuit)

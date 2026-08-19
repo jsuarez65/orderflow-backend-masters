@@ -7,6 +7,14 @@ ProviderBlueprint = Blueprint('provider', __name__, url_prefix='/master/provider
 
 providerService = ProviderService()
 
+@ProviderBlueprint.route('', methods=['GET'])
+def getProviders():
+    
+    log = LogConfiguration.getLogger()
+    
+    log.info("getProviders - Ingresa a obtener proveedores")
+    return {"message": "ok"}, 200
+
 @ProviderBlueprint.route('', methods=['POST'])
 def createProvider():
     
@@ -34,3 +42,14 @@ def updateProvider():
         return {"message": "El proveedor se actualizó correctamente"}, 200
     else:
         return {"message": "Error al actualizar el proveedor"}, 500
+
+@ProviderBlueprint.route('/<cuit>', methods=['DELETE'])
+def deleteProvider(cuit):
+    log = LogConfiguration.getLogger()
+
+    log.info(f"deleteProvider - Ingresa con CUIT: {cuit}")
+
+    if providerService.deleteProvider(cuit):
+        return {"message": "El proveedor se eliminó correctamente"}, 200
+    else:
+        return {"message": "Error al eliminar el proveedor"}, 500
