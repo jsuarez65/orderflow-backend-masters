@@ -9,16 +9,15 @@ class DatabaseConfiguration:
     def getConnection():
 
         if DatabaseConfiguration.db is not None:
-            #return DatabaseConfiguration.db
             try:
-                # Hacemos un "ping" a la base de datos
+                
                 cursor = DatabaseConfiguration.db.cursor()
                 cursor.execute("SELECT 1")
                 cursor.close()
-                # Si no falló, la conexión sigue viva, la devolvemos
+                
                 return DatabaseConfiguration.db
             except Exception:
-                # Si falló (timeout de Neon), la marcamos como muerta
+                
                 DatabaseConfiguration.db = None
 
         DatabaseConfiguration.db = psycopg2.connect(

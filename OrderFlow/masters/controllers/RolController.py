@@ -22,40 +22,22 @@ def createRol():
         return {"message": "Error al ingresar el rol o ya existe"}, 500
 
 
-@rolBlueprint.route('/buscar', methods=['GET'])
-def getRol():
+@rolBlueprint.route('/<nombre>', methods=['GET'])
+def getRol(nombre):
 
-    nameRol = request.args.get('nombre')
-    
-    log.info(f"getRol - Ingresa a obtener el rol: {nameRol}")
+    log.info(f"getRol - Ingresa a obtener el rol: {nombre}")
 
-    if not nameRol:
+    if not nombre:
         return {"message": "El parámetro 'nombre' es obligatorio"}, 400
 
-    rol = rolService.getRol(nameRol)
+    rol = rolService.getRol(nombre)
 
     if rol:
-        return {"message": "Rol encontrado", "rol": rol}, 200
+        return rol, 200
     else:
         return {"message": "Rol no encontrado"}, 404
     
-    
-@rolBlueprint.route('/<nombre>', methods=['PUT'])
-def updateRol(nombre):
-    
-    log = LogConfiguration.getLogger()
-    
-    rolData = request.get_json()
 
-    if not rolData or 'rol' not in rolData:
-        return {"message": "El campo 'rol' es obligatorio"}, 400
-
-    rolNew = rolData['rol']
-
-    if rolService.updateRol(nombre, rolNew):
-        return {"message": f"El rol '{nombre}' se actualizó a '{rolNew}' correctamente"}, 200
-    else:
-        return {"message": "Error al actualizar el rol o no existe"}, 500
 
 
 @rolBlueprint.route('/<nombre>', methods=['DELETE'])
