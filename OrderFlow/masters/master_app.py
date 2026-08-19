@@ -3,8 +3,11 @@ from flask_cors import CORS
 from configuration.LogConfiguration import LogConfiguration
 from controllers.ProductController import ProductBlueprint
 from controllers.ProviderController import ProviderBlueprint
+from flasgger import Swagger
 
 masterMain = Flask(__name__)
+swagger = Swagger(masterMain)
+
 CORS(masterMain)
 
 masterMain.register_blueprint(ProductBlueprint)
