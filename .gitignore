@@ -4,3 +4,5 @@ master_product.log
 /OrderFlow/masters/repositories/__pycache__
 /OrderFlow/masters/services/__pycache__
 OrderFlow/masters/master_service.log
+OrderFlow/masters/model/dtos/__pycache__/ProductDTO.cpython-314.pyc
+OrderFlow/masters/model/dtos/__pycache__/__init__.cpython-314.pyc
