@@ -85,4 +85,31 @@ class ProviderRepository:
                 
             ))
         return provider
+
+    def deleteProvider(self, cuit):  
+        sqlCommand = None
+
+        try:
            
+            sqlCommand = self.db.cursor()
+
+            sqlCommand.execute("DELETE FROM Proveedores WHERE cuit = %s", (cuit,))
+
+            self.db.commit()
+
+            if sqlCommand.rowcount > 0:
+                self.log.info(f"deleteProvider - Proveedor con CUIT {cuit} eliminado correctamente.")
+                return True
+            else:
+                self.log.warning(f"deleteProvider - No se encontró ningún proveedor con CUIT {cuit} para eliminar.")
+                return False
+
+        except Exception as ex:
+          
+            self.db.rollback()
+            self.log.error(f"deleteProvider - Error al eliminar proveedor por CUIT: {str(ex)}")
+            return False
+
+        finally:
+             if sqlCommand:
+                sqlCommand.close()
