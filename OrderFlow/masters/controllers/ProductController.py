@@ -34,3 +34,17 @@ def updateProduct():
         return {"message": "El producto se actualizó correctamente"}, 200
     else:
         return {"message": "Error al actualizar el producto"}, 500
+
+@ProductBlueprint.route('/<int:product_id>', methods=['GET'])
+def getProduct(product_id):
+
+    log = LogConfiguration.getLogger()
+
+    log.info(f"getProduct - Ingresa a obtener el producto: {product_id}")
+
+    productFound = productService.getProduct(product_id)
+
+    if productFound:
+        return productFound, 200
+    else:
+        return {"message": "Producto no encontrado"}, 404

@@ -1,5 +1,6 @@
 from configuration.DatabaseConfiguration import DatabaseConfiguration
 from configuration.LogConfiguration import LogConfiguration
+from model.dto import userDTO
 
 class UsersRepository:
 
@@ -8,19 +9,41 @@ class UsersRepository:
 
     def _getConnection(self):
         return DatabaseConfiguration.getConnection()
+    
+    def save(self, user : userDTO) -> userDTO | None:
+        db = self._getConnection()
+        cur = db.cursor()
+        try:
+            cur.execute("SELECT 1 FROM usuarios WHERE username = %s", (user.username,))
+            if cur.fetchone():
+                self.log.warning("save - El usuario ya existe: ", body=user)
+                return False
+            
+            cur.execute("INSERT INTO usuarios (username, password, rol) VALUES (%s, %s, %s)", 
+                        (user.username, user.password, user.rol))
+            db.commit()
+            return True
 
-    def insertUser(self, user):
+        except Exception as ex:
+            db.rollback()
+            self.log.error(f"save - Error al crear usuario: {str(ex)}")
+            return False
+
+        finally:
+            cur.close()
+
+    def insertUser(self, user : userDTO) -> userDTO | None:
         db = self._getConnection()
         cur = db.cursor()
         try:
             
-            cur.execute("SELECT 1 FROM usuarios WHERE username = %s", (user['username'],))
+            cur.execute("SELECT 1 FROM usuarios WHERE username = %s", (user.username,))
             if cur.fetchone():
                 self.log.warning("insertUser - El usuario ya existe: ", body=user)
                 return False
             
             cur.execute("INSERT INTO usuarios (username, password, rol) VALUES (%s, %s, %s)", 
-                        (user['username'], user['password'], user['rol']))
+                        (user.username, user.password, user.rol))
             db.commit()
             return True
 
@@ -32,7 +55,7 @@ class UsersRepository:
         finally:
             cur.close()
                 
-    def findByUsername(self, username):
+    def existById(self, username : str) -> bool:
         db = self._getConnection()
         cur = db.cursor()
         try:
@@ -46,7 +69,7 @@ class UsersRepository:
         finally:
             cur.close()
 
-    def updateUser(self, usernameActual, userData):
+    def updateUser(self, usernameActual, userData : userDTO) -> userDTO | None:
         db = self._getConnection()
         cur = db.cursor()
         try:
@@ -80,7 +103,7 @@ class UsersRepository:
         finally:
             cur.close()
 
-    def deleteUser(self, username):
+    def deleteUser(self, username : userDTO) -> userDTO | None:
         db = self._getConnection()
         cur = db.cursor()
         try:

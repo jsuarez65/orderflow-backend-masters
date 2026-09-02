@@ -1,49 +1,23 @@
-"""from OrderFlow.masters.repositories.PermisosRepository import PermissionRepository
+from repositories.PermissionRepository import PermissionRepository
 from configuration.LogConfiguration import LogConfiguration
+from model.dto import permissionDTO
 
-permissionRepository = PermissionRepository()
+permisosRepository = PermissionRepository()
 
 class PermissionService:
 
     def __init__(self): 
         self.log = LogConfiguration.getLogger()
     
-    def createPermission(self, permission):
-        
-        self.log.info("createPermission - Ingresa con permission: ", body=permission)
-        return permissionRepository.save(permission)
-    
-    def getPermisos(self, nombre):
-        self.log.info("getPermisos - Ingresa con nombre: ", body=nombre)
-        return permissionRepository.findByName(nombre)
-    
-    def deletePermission(self, nombre):
-        self.log.info("deletePermission - Eliminar permiso: ", body=nombre)
-        return permissionRepository.delete(nombre)"""
-    
-"""def updatePermission (self,permission):
-        self.log.info("updatePermission - Ingresa con permission: ", body=permission)
-        return permissionRepository.save(permission)"""
-        
-from repositories.PermisosRepository import PermisosRepository
-from configuration.LogConfiguration import LogConfiguration
-
-permisosRepository = PermisosRepository()
-
-class PermissionService:
-
-    def __init__(self): 
-        self.log = LogConfiguration.getLogger()
-    
-    def createPermission(self, permiso):
+    def createPermission(self, permiso : permissionDTO) -> bool:
         self.log.info("createPermission - Ingresa con permission: ", body=permiso)
         return permisosRepository.save(permiso)
     
-    def getPermission(self, nombre):
+    def getPermission(self, nombre : str) -> permissionDTO | None:
         self.log.info("getPermission - Ingresa con nombre: ", body=nombre)
         return permisosRepository.findByName(nombre)
     
-    def updatePermission(self, nombreActual, permisoData):
+    def updatePermission(self, nombreActual : str, permisoData : permissionDTO) -> bool:
         self.log.info(f"updatePermission - Actualizar permiso '{nombreActual}'")
         return permisosRepository.update(nombreActual, permisoData)
     

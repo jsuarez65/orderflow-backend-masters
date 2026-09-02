@@ -1,49 +1,66 @@
 from flask import Blueprint, request
 from services.RolService import RolService
 from configuration.LogConfiguration import LogConfiguration
+from model.dto.rolDTO import rolDTO
 
-rolBlueprint = Blueprint('roles', __name__, url_prefix='/roles')
+roleBlueprint = Blueprint('rols', __name__, url_prefix='/rols')
 
-rolService = RolService()
+roleService = RolService()
 log = LogConfiguration.getLogger()
 
 
-@rolBlueprint.route('/', methods=['POST'])
+@roleBlueprint.route('/', methods=['POST'])
 def createRol():
     
-    rolData = request.get_json()
+    roleData = request.get_json()
 
-    if not rolData or 'rol' not in rolData:
+    if not roleData or 'rol' not in roleData:
         return {"message": "El campo 'rol' es obligatorio"}, 400
 
-    if (rolService.createRol(rolData) == True):
+    if (roleService.createRol(roleData) == True):
         return {"message": "El rol se ingresó correctamente"}, 201
     else:
         return {"message": "Error al ingresar el rol o ya existe"}, 500
 
 
-@rolBlueprint.route('/<nombre>', methods=['GET'])
-def getRol(nombre):
+@roleBlueprint.route('/<name>', methods=['GET'])
+def getRol(name) -> list[rolDTO]:
+    """
+    permite recuperar un rol registrado en la base de datos por su nombre.
+    ---
+        responses:
+            200:
+                description: Rol encontrado.
+                schema:
+                    $ref: '#/definitions/rolDTO'
+        definitions:
+            rolDTO:
+                type: object
+                properties:
+                    rol:
+                        type: string
+    """
+    
 
-    log.info(f"getRol - Ingresa a obtener el rol: {nombre}")
+    log.info(f"getRol - Ingresa a obtener el rol: {name}")
 
-    if not nombre:
+    if not name:
         return {"message": "El parámetro 'nombre' es obligatorio"}, 400
 
-    rol = rolService.getRol(nombre)
+    role = roleService.getRol(name)
 
-    if rol:
-        return rol, 200
+    if role:
+        return role, 200
     else:
         return {"message": "Rol no encontrado"}, 404
     
 
 
 
-@rolBlueprint.route('/<nombre>', methods=['DELETE'])
-def deleteRol(nombre):
+@roleBlueprint.route('/<name>', methods=['DELETE'])
+def deleteRol(name):
     
-    if rolService.deleteRol(nombre):
-        return {"message": f"El rol '{nombre}' se eliminó correctamente"}, 200
+    if roleService.deleteRol(name):
+        return {"message": f"El rol '{name}' se eliminó correctamente"}, 200
     else:
-        return {"message": f"Error al eliminar el rol '{nombre}' o no existe"}, 404
+        return {"message": f"Error al eliminar el rol '{name}' o no existe"}, 404

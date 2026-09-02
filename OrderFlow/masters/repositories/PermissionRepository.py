@@ -1,7 +1,8 @@
 from configuration.DatabaseConfiguration import DatabaseConfiguration
 from configuration.LogConfiguration import LogConfiguration
+from model.dto import permissionDTO
 
-class PermisosRepository:
+class PermissionRepository:
 
     def __init__(self):
         self.log = LogConfiguration.getLogger()
@@ -9,18 +10,18 @@ class PermisosRepository:
     def _getConnection(self):
         return DatabaseConfiguration.getConnection()
 
-    def save(self, permiso):
+    def save(self, permiso : permissionDTO) -> permissionDTO | None:
         db = self._getConnection()
         cur = db.cursor()
         try:
-            # Verificamos si existe (todo en el mismo cursor)
-            cur.execute("SELECT 1 FROM permisos WHERE nombre = %s", (permiso['nombre'],))
+            
+            cur.execute("SELECT 1 FROM permisos WHERE nombre = %s", (permiso.nombre,))
             if cur.fetchone():
                 self.log.warning("save - El permiso ya existe: ", body=permiso)
                 return False
             
             cur.execute("INSERT INTO permisos (nombre, descripcion) VALUES (%s, %s)", 
-                        (permiso['nombre'], permiso['descripcion']))
+                        (permiso.nombre, permiso.descripcion))
             db.commit()
             return True
 
@@ -32,7 +33,7 @@ class PermisosRepository:
         finally:
             cur.close()
                 
-    def findByName(self, nombre):
+    def ExistById(self, nombre : str) -> bool:
         db = self._getConnection()
         cur = db.cursor()
         try:
@@ -46,7 +47,7 @@ class PermisosRepository:
         finally:
             cur.close()
 
-    def update(self, nombreActual, permisoData):
+    def update(self, nombreActual, permisoData : permissionDTO) -> permissionDTO | None:
         db = self._getConnection()
         cur = db.cursor()
         try:
@@ -55,17 +56,17 @@ class PermisosRepository:
                 self.log.warning(f"update - El permiso '{nombreActual}' no existe")
                 return False
 
-            if nombreActual != permisoData['nombre']:
-                cur.execute("SELECT 1 FROM permisos WHERE nombre = %s", (permisoData['nombre'],))
+            if nombreActual != permisoData.nombre:
+                cur.execute("SELECT 1 FROM permisos WHERE nombre = %s", (permisoData.nombre,))
                 if cur.fetchone():
-                    self.log.warning(f"update - El permiso '{permisoData['nombre']}' ya existe")
+                    self.log.warning(f"update - El permiso '{permisoData.nombre}' ya existe")
                     return False
 
             cur.execute("""
                 UPDATE permisos 
                 SET nombre = %s, descripcion = %s 
                 WHERE nombre = %s
-            """, (permisoData['nombre'], permisoData['descripcion'], nombreActual))
+            """, (permisoData.nombre, permisoData.descripcion, nombreActual))
             
             db.commit()
             return True
@@ -93,3 +94,4 @@ class PermisosRepository:
         
         finally:
             cur.close()
+            

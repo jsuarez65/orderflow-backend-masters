@@ -2,6 +2,7 @@
 from flask import Blueprint, request
 from services.UsersService import UsersService
 from configuration.LogConfiguration import LogConfiguration
+from model.dto.userDTO import userDTO
 
 usersBlueprint = Blueprint('users', __name__, url_prefix='/users')
 
@@ -9,15 +10,21 @@ usersService = UsersService()
 log = LogConfiguration.getLogger()
 
 
-@usersBlueprint.route('/<name>', methods=['POST'])
-def createUser(name):
+@usersBlueprint.route('/', methods=['POST'])
+def createUser():
     
     userData = request.get_json()
     
-    log.info(f"createUser - Ingresa con usuario: {name}", body=userData)
+    log.info(f"createUser - Ingresa con usuario: {userData['username']}", body=userData)
 
     
-    if not userData or 'username' not in userData or 'password' not in userData or 'rol' not in userData:
+    isUserDataIncomplete = (
+        not userData
+        or 'username' not in userData
+        or 'password' not in userData
+        or 'rol' not in userData
+    )
+    if isUserDataIncomplete:
         return {"message": "Los campos 'username', 'password' y 'rol' son obligatorios"}, 400
 
     if usersService.createUser(userData):
@@ -27,7 +34,26 @@ def createUser(name):
 
 
 @usersBlueprint.route('/<name>', methods=['GET'])
-def getUser(name):
+def getUser(name) -> list[userDTO]:
+    """
+        permite recuperar un usuario registrado en la base de datos por su nombre de usuario.
+    ---
+        responses:
+            200:
+                description: Usuario encontrado.
+                schema:
+                    $ref: '#/definitions/userDTO'
+        definitions:
+            userDTO:
+                type: object
+                properties:
+                    username:
+                        type: string
+                    password:
+                        type: string
+                    rol:
+                        type: string
+    """
 
     log.info(f"getUser - Ingresa a obtener el usuario: {name}")
 

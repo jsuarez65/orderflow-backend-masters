@@ -1,13 +1,15 @@
 from flask import Blueprint, request
 from services.PermissionService import PermissionService
 from configuration.LogConfiguration import LogConfiguration
+from model.dto.permissionDTO import permissionDTO
 
 PermissionBlueprint = Blueprint('permisos', __name__, url_prefix='/permisos')
 
 permissionService = PermissionService()
+log = LogConfiguration.getLogger()
 
-@PermissionBlueprint.route('/<nombre>', methods=['POST'])
-def createPermission(nombre):
+@PermissionBlueprint.route('/', methods=['POST'])
+def createPermission():
     
     log = LogConfiguration.getLogger()
     
@@ -25,14 +27,35 @@ def createPermission(nombre):
 
 
 
-@PermissionBlueprint.route('/<nombre>', methods=['GET'])
-def getPermission(nombre):
+@PermissionBlueprint.route('/', methods=['GET'])
+def getPermission() -> list[permissionDTO]:
+    
+    """ 
+    Permite recuperar todos los permisos registrados en la base de datos.
+    ---
+        responses:
+            200:
+                description: Lista de permisosDTO.
+                schema:
+                    type: array
+                    items:
+                        $ref: '#/definitions/permisosDTO'
+        definitions:
+            permissionDTO:
+                type: object
+                properties:
+                    nombre:
+                        type: string
+                    descripcion:
+                        type: string
+
+    """
 
     log = LogConfiguration.getLogger()
 
-    log.info(f"getPermission - Ingresa a obtener el permiso: {nombre}")
+    log.info(f"getPermission - Ingresa a obtener el permiso: {request.args}")
 
-    permissionFound = permissionService.getPermission(nombre)
+    permissionFound = permissionService.getPermission(request.args.get('nombre'))
 
     if permissionFound:
         return permissionFound, 200

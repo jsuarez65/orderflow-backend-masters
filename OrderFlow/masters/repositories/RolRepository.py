@@ -1,5 +1,6 @@
 from configuration.DatabaseConfiguration import DatabaseConfiguration
 from configuration.LogConfiguration import LogConfiguration
+from model.dto import rolDTO
 
 class RolRepository:
 
@@ -8,14 +9,34 @@ class RolRepository:
 
     def _getConnection(self):
         return DatabaseConfiguration.getConnection()
+    
+    def save(self, rol : rolDTO) -> rolDTO | None:
+        db = self._getConnection()
+        cur = db.cursor()
+        try:
+            cur.execute("SELECT 1 FROM rol WHERE rol = %s", (rol.rol,))
+            if cur.fetchone():
+                self.log.warning("save - El rol ya existe: ", body=rol)
+                return False
+            
+            cur.execute("INSERT INTO rol (rol) VALUES (%s)", (rol.rol,))
+            db.commit()
+            return True
 
-    def insertRol(self, rol):
+        except Exception as ex:
+            db.rollback()
+            self.log.error(f"save - Error al crear rol: {str(ex)}")
+            return False
+
+        finally:
+            cur.close()
+
+    def insertRol(self, rol : rolDTO) -> rolDTO | None:
         sqlCommand = None
         try:
             db = self._getConnection()
             sqlCommand = db.cursor()
 
-            # Todo en el mismo cursor, sin llamar a otros métodos
             sqlCommand.execute("SELECT * FROM rol WHERE rol = %s", (rol['rol'],))
             if sqlCommand.fetchone():
                 self.log.warning("insertRol - El rol ya existe: ", body=rol)
@@ -37,7 +58,7 @@ class RolRepository:
             if sqlCommand:
                 sqlCommand.close()
                 
-    def findByName(self, rol):
+    def existById(self, rol : str) -> bool:
         sqlCommand = None
         try:
             db = self._getConnection()
@@ -53,7 +74,7 @@ class RolRepository:
             if sqlCommand:
                 sqlCommand.close()
 
-    def updateRol(self, rolActual, rolNuevo):
+    def updateRol(self, rolActual, rolNuevo : rolDTO) -> rolDTO | None:
         sqlCommand = None
         try:
             db = self._getConnection()
@@ -85,7 +106,7 @@ class RolRepository:
             if sqlCommand:
                 sqlCommand.close()
 
-    def delete(self, rol):
+    def delete(self, rol : rolDTO) -> rolDTO | None:
         sqlCommand = None
         try:
             db = self._getConnection()
