@@ -16,10 +16,10 @@ class CustomerRepository:
                 INSERT INTO clientes (cuit, razon_social, telefono, email)
                 VALUES (%s, %s, %s, %s)
             """, (
-                Customer['cuit'],
-                Customer['razon_social'],
-                Customer['telefono'],
-                Customer['email']
+                Customer.cuit,
+                Customer.razon_social,
+                Customer.telefono,
+                Customer.email
             ))
 
             self.db.commit()
@@ -42,7 +42,18 @@ class CustomerRepository:
             sqlCommand.execute("SELECT cuit, razon_social, telefono, email FROM clientes")
             
             resultados = sqlCommand.fetchall()
-            return resultados
+            
+            # Lo convertimos a una lista de diccionarios para que Flask lo pueda mandar como JSON
+            clientes_lista = []
+            for row in resultados:
+                clientes_lista.append({
+                    "cuit": row[0],
+                    "razon_social": row[1],
+                    "telefono": row[2],
+                    "email": row[3]
+                })
+            
+            return clientes_lista
 
         except Exception as ex:
             self.log.error(f"getAllCustomers - Error al obtener clientes: {str(ex)}")
@@ -62,10 +73,10 @@ class CustomerRepository:
                 SET razon_social = %s, telefono = %s, email = %s
                 WHERE cuit = %s
             """, (
-                Customer['razon_social'],
-                Customer['telefono'],
-                Customer['email'],
-                Customer['cuit'] # Necesitamos el CUIT para saber a quién actualizar
+                Customer.razon_social,
+                Customer.telefono,
+                Customer.email,
+                Customer.cuit # Necesitamos el CUIT para saber a quién actualizar
             ))
 
             self.db.commit()
