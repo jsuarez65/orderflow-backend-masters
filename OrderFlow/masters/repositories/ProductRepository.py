@@ -1,6 +1,8 @@
 
 from configuration.DatabaseConfiguration import DatabaseConfiguration
 from configuration.LogConfiguration import LogConfiguration
+from model.dtos import ProductDTO
+
 
 class ProductRepository:
 
@@ -8,14 +10,14 @@ class ProductRepository:
         self.db = DatabaseConfiguration.getConnection()
         self.log = LogConfiguration.getLogger()
 
-    def save(self, product):
+    def save(self, product : ProductDTO) -> ProductDTO | None:
                 
         sqlCommand = None
 
         try:
             sqlCommand = self.db.cursor()
 
-            productFound = self.findById(product['codigo_interno'])
+            productFound = self.existsById(product.internalCode)
 
             if productFound:
                 self.log.warning("save - El producto ya existe, se procederá a actualizarlo: ", body=product)
@@ -36,7 +38,7 @@ class ProductRepository:
             if sqlCommand:
                 sqlCommand.close()
 
-    def findById(self, codigoInterno):
+    def existsById(self, codigoInterno : str) -> bool:
 
         sqlCommand = None
 
@@ -54,35 +56,35 @@ class ProductRepository:
             if sqlCommand:
                 sqlCommand.close()
 
-    def _insert(self, sqlCommand, product):
+    def _insert(self, sqlCommand, product : ProductDTO) -> ProductDTO | None:
         
         sqlCommand.execute("""
             INSERT INTO Productos (codigo_interno, sku, codigo_barras, descripcion, 
             stock_minimo, stock_maximo)
             VALUES (%s, %s, %s, %s, %s, %s)
         """, (
-            product['codigo_interno'],
-            product['sku'],
-            product['codigo_barras'],
-            product['descripcion'],
-            product['stock_minimo'],
-            product['stock_maximo']
+            product.internalCode,
+            product.sku,
+            product.barcode,
+            product.description,
+            product.minimumStock,
+            product.maximumStock
         ))
 
         return product
 
-    def _update(self, sqlCommand, product):
+    def _update(self, sqlCommand, product : ProductDTO) -> ProductDTO | None:
         
         sqlCommand.execute("""
             UPDATE Productos SET sku=%s, codigo_barras=%s, descripcion=%s, 
             stock_minimo=%s, stock_maximo=%s
             WHERE codigo_interno=%s""", (
-                product['sku'],
-                product['codigo_barras'],
-                product['descripcion'],
-                product['stock_minimo'],
-                product['stock_maximo'],
-                product['codigo_interno']
+                product.sku,
+                product.barcode,
+                product.description,
+                product.minimumStock,
+                product.maximumStock,
+                product.internalCode
             ))
 
         return product
