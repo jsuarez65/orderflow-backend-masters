@@ -4,3 +4,4 @@ master_product.log
 /OrderFlow/masters/repositories/__pycache__
 /OrderFlow/masters/services/__pycache__
 OrderFlow/masters/master_service.log
+master_cities.log
