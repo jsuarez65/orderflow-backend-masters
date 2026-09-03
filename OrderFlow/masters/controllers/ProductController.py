@@ -1,12 +1,12 @@
-from flask import Blueprint, request
+from logging import log
+
+from flask import Blueprint, request, session, session
 from model.dtos.ProductDTO import ProductDTO
 from services.ProductService import ProductService
 from configuration.LogConfiguration import LogConfiguration
-
+from configuration.DatabaseConfiguration import sessionLocal
 
 ProductBlueprint = Blueprint('product', __name__, url_prefix='/master/product')
-
-productService = ProductService()
 
 @ProductBlueprint.route('', methods=['GET'])
 def getProducts() -> list[ProductDTO]:
@@ -73,14 +73,18 @@ def getProducts() -> list[ProductDTO]:
 
 @ProductBlueprint.route('', methods=['POST'])
 def createProduct():
-
+    
+    session = sessionLocal()
     log = LogConfiguration.getLogger()
     
     product = request.get_json()
 
+    productService = ProductService(log, session=session)
+
     log.info("createProduct - Ingresa con product: ", body=product)
 
     productCreated = productService.createProduct(product)
+
     if (productCreated is not None):
         return productCreated, 200
     else:
@@ -89,12 +93,13 @@ def createProduct():
 @ProductBlueprint.route('', methods=['PUT'])
 def updateProduct():
 
+    session = sessionLocal()
     log = LogConfiguration.getLogger()
-    
+
+    productService = ProductService(log, session=session)
+
     product = ProductDTO(**request.get_json())
-
-    product.internalCode
-
+    
     log.info("updateProduct - Ingresa con product: ", body=product)
 
     productUpdated = productService.updateProduct(product)
