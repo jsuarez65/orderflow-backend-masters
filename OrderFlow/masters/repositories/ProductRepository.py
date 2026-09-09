@@ -9,7 +9,16 @@ class ProductRepository:
         self.session = session
         self.log = log
 
-    def save(self, product: ProductDTO) -> ProductDTO | None:
+    def findAll(self) -> list[ProductEntity]:
+
+        try:
+            return self.session.query(ProductEntity).all()
+        
+        except Exception as ex:
+            self.log.error(f"findAll - Error al recuperar productos: {str(ex)}")
+            return []
+
+    def save(self, product: ProductEntity) -> ProductEntity | None:
 
         try:
             productFound = self.findByInternalCode(product.internalCode)
@@ -27,7 +36,10 @@ class ProductRepository:
             self.session.rollback()
             return None
 
-    def findByInternalCode(self, internalCode: str) -> ProductEntity | None:
+    def existsById(self, internalCode: str) -> bool:
+        return self._findByInternalCode(internalCode) is not None
+
+    def _findByInternalCode(self, internalCode: str) -> ProductEntity | None:
 
         try:
             return (
@@ -38,37 +50,25 @@ class ProductRepository:
 
         except Exception as ex:
             self.log.error(
-                f"findByInternalCode - Error al buscar producto: {str(ex)}"
+                f"_findByInternalCode - Error al buscar producto: {str(ex)}"
             )
             return None
 
-    def existsById(self, internalCode: str) -> bool:
-        return self.findByInternalCode(internalCode) is not None
+    def _insert(self, product: ProductEntity) -> ProductEntity:
 
-    def _insert(self, product: ProductDTO) -> None:
-
-        productEntity = ProductEntity(
-            codigoInterno=product.internalCode,
-            sku=product.sku,
-            codigoBarras=product.barcode,
-            descripcion=product.description,
-            stockMinimo=product.minimumStock,
-            stockMaximo=product.maximumStock
-        )
-
-        self.session.add(productEntity)
+        self.session.add(product)
         self.session.commit()
 
-        return None
+        return product
 
-    def _update(self, entity: ProductEntity, dto: ProductDTO) -> None:
+    def _update(self, entityToUpdate: ProductEntity, entity: ProductEntity) -> ProductEntity:
 
-        entity.sku = dto.sku
-        entity.codigoBarras = dto.barcode
-        entity.descripcion = dto.description
-        entity.stockMinimo = dto.minimumStock
-        entity.stockMaximo = dto.maximumStock
+        entityToUpdate.sku = entity.sku
+        entityToUpdate.codigoBarras = entity.barcode
+        entityToUpdate.descripcion = entity.description
+        entityToUpdate.stockMinimo = entity.minimumStock
+        entityToUpdate.stockMaximo = entity.maximumStock
 
         self.session.commit()
 
-        return entity
+        return entityToUpdate

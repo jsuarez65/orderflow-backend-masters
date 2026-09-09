@@ -1,6 +1,7 @@
+from dataclasses import asdict
 from logging import log
 
-from flask import Blueprint, request, session, session
+from flask import Blueprint, request
 from model.dtos.ProductDTO import ProductDTO
 from services.ProductService import ProductService
 from configuration.LogConfiguration import LogConfiguration
@@ -9,7 +10,7 @@ from configuration.DatabaseConfiguration import sessionLocal
 ProductBlueprint = Blueprint('product', __name__, url_prefix='/master/product')
 
 @ProductBlueprint.route('', methods=['GET'])
-def getProducts() -> list[ProductDTO]:
+def getAll() -> tuple[list[dict], int]:
     """ 
     Permite recuperar todos los productos registrados en la base de datos.
     ---
@@ -68,11 +69,16 @@ def getProducts() -> list[ProductDTO]:
             
     log = LogConfiguration.getLogger()
     
-    log.info("getProducts - Ingresa a obtener productos")
-    return {"message": "ok"}, 200
+    log.info("getAll - Ingresa a recuperar todos los productos")
+
+    session = sessionLocal()
+    productService = ProductService(log, session=session)
+    products = productService.findAll()
+
+    return {"products": products}, 200
 
 @ProductBlueprint.route('', methods=['POST'])
-def createProduct():
+def create() -> tuple[dict, int]:
     
     session = sessionLocal()
     log = LogConfiguration.getLogger()
@@ -81,17 +87,17 @@ def createProduct():
 
     productService = ProductService(log, session=session)
 
-    log.info("createProduct - Ingresa con product: ", body=product)
+    log.info("create - Ingresa con producto: ", body=product)
 
     productCreated = productService.createProduct(product)
 
     if (productCreated is not None):
-        return productCreated, 200
+        return asdict(productCreated), 200
     else:
-        return {"message": "Error al ingresar el producto"}, 500
+        return {"message": "No se puede crear el producto debido a que el mismo ya existe"}, 500
 
 @ProductBlueprint.route('', methods=['PUT'])
-def updateProduct():
+def update() -> tuple[dict, int]:
 
     session = sessionLocal()
     log = LogConfiguration.getLogger()
@@ -100,10 +106,10 @@ def updateProduct():
 
     product = ProductDTO(**request.get_json())
     
-    log.info("updateProduct - Ingresa con product: ", body=product)
+    log.info("update - Ingresa con producto: ", body=product)
 
     productUpdated = productService.updateProduct(product)
     if (productUpdated is not None):
-        return productUpdated, 200
+        return asdict(productUpdated), 200
     else:
-        return {"message": "Error al actualizar el producto"}, 500
+        return {"message": "El producto a actualizar no existe"}, 500

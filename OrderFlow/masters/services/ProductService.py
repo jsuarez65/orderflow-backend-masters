@@ -1,4 +1,5 @@
 
+from OrderFlow.masters.model.mappers.ProductMapper import ProductMapper
 from model.dtos import ProductDTO
 from repositories.ProductRepository import ProductRepository
 
@@ -8,23 +9,30 @@ class ProductService:
     def __init__(self, log, session): 
         self.log = log
         self.productRepository = ProductRepository(session)
+
+    def findAll(self) -> list[ProductDTO]:
+
+        productEntities = self.productRepository.findAll()
+        return ProductMapper.toListDTO(productEntities)
     
-    def createProduct(self, product: ProductDTO):
+    def create(self, product: ProductDTO) -> ProductDTO | None:
         
-        self.log.info("createProduct - Ingresa con product: ", body=product)
-
-        if self.productRepository.findById(product.internalCode):
-            self.log.warning("createProduct - El producto ya existe: ", body=product)
-            return None
-
-        return self.productRepository.save(product)
-
-    def updateProduct(self, product: ProductDTO):
-        
-        self.log.info("updateProduct - Ingresa con product: ", body=product)
+        self.log.info("create - Ingresa con product: ", body=product)
 
         if self.productRepository.existsById(product.internalCode):
-            return self.productRepository.save(product)
-        else:
-            self.log.warning("updateProduct - El producto no existe: ", body=product)
-            return False
+            self.log.warning("create - El producto ya existe: ", body=product)
+            return None
+
+        productToCreate = ProductMapper.toEntity(product)
+        return ProductMapper.toDTO(self.productRepository.save(productToCreate))
+
+    def update(self, product: ProductDTO) -> ProductDTO | None:
+        
+        self.log.info("update - Ingresa con product: ", body=product)
+
+        if not self.productRepository.existsById(product.internalCode):
+            self.log.warning("update - El producto no existe: ", body=product)
+            return None
+
+        productToUpdate = ProductMapper.toEntity(product)
+        return ProductMapper.toDTO(self.productRepository.save(productToUpdate))
