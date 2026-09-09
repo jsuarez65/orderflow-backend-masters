@@ -1,23 +1,11 @@
 
-import psycopg2
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-class DatabaseConfiguration:
+class Base(DeclarativeBase):
+    pass
 
-    db = None
+engine = create_engine('postgresql+psycopg2://ep-dry-art-acz5gndj-pooler.sa-east-1.aws.neon.tech:5432/' + 
+                        'orderflow?user=neondb_owner&password=npg_oYRmQ2e0IHaT&sslmode=require')
 
-    @staticmethod
-    def getConnection():
-
-        if DatabaseConfiguration.db is not None:
-            return DatabaseConfiguration.db
-
-        DatabaseConfiguration.db = psycopg2.connect(
-            host="ep-dry-art-acz5gndj-pooler.sa-east-1.aws.neon.tech",
-            port="5432",
-            dbname="orderflow",
-            user="neondb_owner",
-            password="npg_oYRmQ2e0IHaT",
-            sslmode="require")
-
-        return DatabaseConfiguration.db
-
+sessionLocal = sessionmaker(bind=engine)

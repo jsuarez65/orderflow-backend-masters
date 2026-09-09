@@ -1,90 +1,74 @@
 
-from configuration.DatabaseConfiguration import DatabaseConfiguration
-from configuration.LogConfiguration import LogConfiguration
 from model.dtos import ProductDTO
+from model.entities import ProductEntity
 
 
 class ProductRepository:
 
-    def __init__(self):
-        self.db = DatabaseConfiguration.getConnection()
-        self.log = LogConfiguration.getLogger()
+    def __init__(self, log, session):
+        self.session = session
+        self.log = log
 
-    def save(self, product : ProductDTO) -> ProductDTO | None:
-                
-        sqlCommand = None
+    def findAll(self) -> list[ProductEntity]:
 
         try:
-            sqlCommand = self.db.cursor()
+            return self.session.query(ProductEntity).all()
+        
+        except Exception as ex:
+            self.log.error(f"findAll - Error al recuperar productos: {str(ex)}")
+            return []
 
-            productFound = self.existsById(product.internalCode)
+    def save(self, product: ProductEntity) -> ProductEntity | None:
+
+        try:
+            productFound = self.findByInternalCode(product.internalCode)
 
             if productFound:
-                self.log.warning("save - El producto ya existe, se procederá a actualizarlo: ", body=product)
-                productFound = self._update(sqlCommand, product)
-            else:
-                productFound = self._insert(sqlCommand, product)
+                self.log.warning(
+                    f"save - El producto ya existe, se procederá a actualizarlo: {product}"
+                )
+                return self._update(productFound, product)
 
-            self.db.commit()
-            return productFound
+            return self._insert(product)
 
         except Exception as ex:
-            self.db.rollback()
-
-            self.log.error(f"createProduct - Error al crear producto: {str(ex)}")
+            self.log.error(f"save - Error al guardar producto: {str(ex)}")
+            self.session.rollback()
             return None
 
-        finally:
-            if sqlCommand:
-                sqlCommand.close()
+    def existsById(self, internalCode: str) -> bool:
+        return self._findByInternalCode(internalCode) is not None
 
-    def existsById(self, codigoInterno : str) -> bool:
-
-        sqlCommand = None
+    def _findByInternalCode(self, internalCode: str) -> ProductEntity | None:
 
         try:
-            sqlCommand = self.db.cursor()
-            sqlCommand.execute("SELECT * FROM Productos WHERE codigo_interno = %s", (codigoInterno,))
-            result = sqlCommand.fetchone()
-            return result is not None
+            return (
+                self.session.query(ProductEntity)
+                .filter(ProductEntity.codigoInterno == internalCode)
+                .first()
+            )
 
         except Exception as ex:
-            self.log.error(f"findById - Error al buscar producto por ID: {str(ex)}")
-            return False
+            self.log.error(
+                f"_findByInternalCode - Error al buscar producto: {str(ex)}"
+            )
+            return None
 
-        finally:
-            if sqlCommand:
-                sqlCommand.close()
+    def _insert(self, product: ProductEntity) -> ProductEntity:
 
-    def _insert(self, sqlCommand, product : ProductDTO) -> ProductDTO | None:
-        
-        sqlCommand.execute("""
-            INSERT INTO Productos (codigo_interno, sku, codigo_barras, descripcion, 
-            stock_minimo, stock_maximo)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (
-            product.internalCode,
-            product.sku,
-            product.barcode,
-            product.description,
-            product.minimumStock,
-            product.maximumStock
-        ))
+        self.session.add(product)
+        self.session.commit()
 
         return product
 
-    def _update(self, sqlCommand, product : ProductDTO) -> ProductDTO | None:
-        
-        sqlCommand.execute("""
-            UPDATE Productos SET sku=%s, codigo_barras=%s, descripcion=%s, 
-            stock_minimo=%s, stock_maximo=%s
-            WHERE codigo_interno=%s""", (
-                product.sku,
-                product.barcode,
-                product.description,
-                product.minimumStock,
-                product.maximumStock,
-                product.internalCode
-            ))
+    def _update(self, entityToUpdate: ProductEntity, entity: ProductEntity) -> ProductEntity:
 
-        return product
+        entityToUpdate.sku = entity.sku
+        entityToUpdate.codigoBarras = entity.barcode
+        entityToUpdate.descripcion = entity.description
+        entityToUpdate.stockMinimo = entity.minimumStock
+        entityToUpdate.stockMaximo = entity.maximumStock
+
+        self.session.commit()
+
+        return entityToUpdate

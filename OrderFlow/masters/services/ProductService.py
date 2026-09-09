@@ -1,31 +1,38 @@
 
+from OrderFlow.masters.model.mappers.ProductMapper import ProductMapper
 from model.dtos import ProductDTO
 from repositories.ProductRepository import ProductRepository
-from configuration.LogConfiguration import LogConfiguration
 
-productRepository = ProductRepository()
 
 class ProductService:
 
-    def __init__(self): 
-        self.log = LogConfiguration.getLogger()
-    
-    def createProduct(self, product: ProductDTO):
-        
-        self.log.info("createProduct - Ingresa con product: ", body=product)
+    def __init__(self, log, session): 
+        self.log = log
+        self.productRepository = ProductRepository(session)
 
-        if productRepository.findById(product.internalCode):
-            self.log.warning("createProduct - El producto ya existe: ", body=product)
+    def findAll(self) -> list[ProductDTO]:
+
+        productEntities = self.productRepository.findAll()
+        return ProductMapper.toListDTO(productEntities)
+    
+    def create(self, product: ProductDTO) -> ProductDTO | None:
+        
+        self.log.info("create - Ingresa con product: ", body=product)
+
+        if self.productRepository.existsById(product.internalCode):
+            self.log.warning("create - El producto ya existe: ", body=product)
             return None
 
-        return productRepository.save(product)
+        productToCreate = ProductMapper.toEntity(product)
+        return ProductMapper.toDTO(self.productRepository.save(productToCreate))
 
-    def updateProduct(self, product: ProductDTO):
+    def update(self, product: ProductDTO) -> ProductDTO | None:
         
-        self.log.info("updateProduct - Ingresa con product: ", body=product)
+        self.log.info("update - Ingresa con product: ", body=product)
 
-        if productRepository.existsById(product.internalCode):
-            return productRepository.save(product)
-        else:
-            self.log.warning("updateProduct - El producto no existe: ", body=product)
-            return False
+        if not self.productRepository.existsById(product.internalCode):
+            self.log.warning("update - El producto no existe: ", body=product)
+            return None
+
+        productToUpdate = ProductMapper.toEntity(product)
+        return ProductMapper.toDTO(self.productRepository.save(productToUpdate))
