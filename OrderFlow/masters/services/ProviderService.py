@@ -29,8 +29,8 @@ class ProviderService:
             self.log.warning("updateProvider - El proveedor no existe: ", body=provider)
             return False
 
-   def deleteProvider(cuit):
-    """
-    Lógica de negocio para la eliminación del proveedor.
-    """
-    return providerRepository.deleteProvider(cuit)
+    def deleteProvider(self, cuit):
+        """
+        Lógica de negocio para la eliminación del proveedor.
+        """
+        return providerRepository.deleteProvider(cuit)
