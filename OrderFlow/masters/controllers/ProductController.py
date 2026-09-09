@@ -75,7 +75,7 @@ def getAll() -> tuple[list[dict], int]:
     productService = ProductService(log, session=session)
     products = productService.findAll()
 
-    return {"products": products}, 200
+    return {products}, 200
 
 @ProductBlueprint.route('', methods=['POST'])
 def create() -> tuple[dict, int]:
@@ -83,13 +83,13 @@ def create() -> tuple[dict, int]:
     session = sessionLocal()
     log = LogConfiguration.getLogger()
     
-    product = request.get_json()
+    product = ProductDTO(**request.get_json())
 
     productService = ProductService(log, session=session)
 
     log.info("create - Ingresa con producto: ", body=product)
 
-    productCreated = productService.createProduct(product)
+    productCreated = productService.create(product)
 
     if (productCreated is not None):
         return asdict(productCreated), 200
@@ -108,7 +108,7 @@ def update() -> tuple[dict, int]:
     
     log.info("update - Ingresa con producto: ", body=product)
 
-    productUpdated = productService.updateProduct(product)
+    productUpdated = productService.update(product)
     if (productUpdated is not None):
         return asdict(productUpdated), 200
     else:
