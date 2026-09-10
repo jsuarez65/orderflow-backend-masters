@@ -1,15 +1,16 @@
+from dataclasses import asdict
+from logging import log
+
 from flask import Blueprint, request
 from model.dtos.ProductDTO import ProductDTO
 from services.ProductService import ProductService
 from configuration.LogConfiguration import LogConfiguration
-
+from configuration.DatabaseConfiguration import sessionLocal
 
 ProductBlueprint = Blueprint('product', __name__, url_prefix='/master/product')
 
-productService = ProductService()
-
 @ProductBlueprint.route('', methods=['GET'])
-def getProducts() -> list[ProductDTO]:
+def getAll() -> tuple[list[dict], int]:
     """ 
     Permite recuperar todos los productos registrados en la base de datos.
     ---
@@ -68,37 +69,47 @@ def getProducts() -> list[ProductDTO]:
             
     log = LogConfiguration.getLogger()
     
-    log.info("getProducts - Ingresa a obtener productos")
-    return {"message": "ok"}, 200
+    log.info("getAll - Ingresa a recuperar todos los productos")
+
+    session = sessionLocal()
+    productService = ProductService(log, session=session)
+    products = productService.findAll()
+
+    return {products}, 200
 
 @ProductBlueprint.route('', methods=['POST'])
-def createProduct():
-
-    log = LogConfiguration.getLogger()
+def create() -> tuple[dict, int]:
     
-    product = request.get_json()
-
-    log.info("createProduct - Ingresa con product: ", body=product)
-
-    productCreated = productService.createProduct(product)
-    if (productCreated is not None):
-        return productCreated, 200
-    else:
-        return {"message": "Error al ingresar el producto"}, 500
-
-@ProductBlueprint.route('', methods=['PUT'])
-def updateProduct():
-
+    session = sessionLocal()
     log = LogConfiguration.getLogger()
     
     product = ProductDTO(**request.get_json())
 
-    product.internalCode
+    productService = ProductService(log, session=session)
 
-    log.info("updateProduct - Ingresa con product: ", body=product)
+    log.info("create - Ingresa con producto: ", body=product)
 
-    productUpdated = productService.updateProduct(product)
-    if (productUpdated is not None):
-        return productUpdated, 200
+    productCreated = productService.create(product)
+
+    if (productCreated is not None):
+        return asdict(productCreated), 200
     else:
-        return {"message": "Error al actualizar el producto"}, 500
+        return {"message": "No se puede crear el producto debido a que el mismo ya existe"}, 500
+
+@ProductBlueprint.route('', methods=['PUT'])
+def update() -> tuple[dict, int]:
+
+    session = sessionLocal()
+    log = LogConfiguration.getLogger()
+
+    productService = ProductService(log, session=session)
+
+    product = ProductDTO(**request.get_json())
+    
+    log.info("update - Ingresa con producto: ", body=product)
+
+    productUpdated = productService.update(product)
+    if (productUpdated is not None):
+        return asdict(productUpdated), 200
+    else:
+        return {"message": "El producto a actualizar no existe"}, 500
