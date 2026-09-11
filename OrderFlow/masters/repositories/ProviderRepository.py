@@ -1,87 +1,79 @@
+from model.dtos import ProviderDTO
+from model.entities import ProviderEntity
 
-from configuration.DatabaseConfiguration import DatabaseConfiguration
-from configuration.LogConfiguration import LogConfiguration
 
 
 class ProviderRepository:
    
-    def __init__(self):
-        self.db = DatabaseConfiguration.getConnection()
-        self.log = LogConfiguration.getLogger()
+    def __init__(self, log, session):
+        self.session = session
+        self.log = log
 
-    def save(self, provider):
-        sqlCommand = None
+    def findAll(self) -> list[ProviderEntity]:
 
         try:
-            sqlCommand = self.db.cursor()
+            return self.session.query(ProviderEntity).all()
+        except Exception as ex:
+            self.log.error(f"findAll - Error al obtener todos los proveedores: {str(ex)}")
+            return []
 
-            providerFound = self.findById(provider['cuit'])
+    def save(self, provider: ProviderEntity) -> ProviderEntity | None:
+
+
+        try:
+            providerFound = self.findBycuit(provider.cuit)
 
             if providerFound:
-                self.log.warning("save - El proveedor ya existe, se procederá a actualizarlo: ", body=provider)
-                self._update(sqlCommand, provider)
-            else:
-                self._insert(sqlCommand, provider)
+                self.log.warning(
+                    f"save - El proveedor ya existe, se procederá a actualizarlo: {provider}"
+                )
+                return self._update(providerFound, provider)
 
-            self.db.commit()
-            return True
+            return self._insert(provider)
 
         except Exception as ex:
-            self.db.rollback()
+            self.log.error(f"save - Error al guardar proveedor: {str(ex)}")
+            self.session.rollback()
+            return None
 
-            self.log.error(f"save - Error al guardar/actualizar proveedor: {str(ex)}")
-            return False
+    def existsById(self, cuit:str) -> bool:
+        return self._findBycuit(cuit) is not None
 
-        finally:
-            if sqlCommand:
-                sqlCommand.close()
-
-    def findById(self, cuit):
-
-        sqlCommand = None
-
+    def _findBycuit(self, cuit:str) -> ProviderEntity | None:
+        
         try:
-            sqlCommand = self.db.cursor()
-            sqlCommand.execute("SELECT * FROM Proveedores WHERE cuit = %s", (cuit,))
-            result = sqlCommand.fetchone()
-            return result is not None
+            return (
+                self.session.query(ProviderEntity)
+                .filter(ProviderEntity.cuit == cuit)
+                .first()
+            )
 
         except Exception as ex:
-            self.log.error(f"findById - Error al buscar proveedor por CUIT: {str(ex)}")
-            return False
+            self.log.error(
+                f"_findBycuit - Error al buscar proveedor: {str(ex)}"
+            )
+            return None
 
-        finally:
-            if sqlCommand:
-                sqlCommand.close()
 
-    def _insert(self, sqlCommand, provider):
+    def _insert(self, provider: ProviderEntity) -> ProviderEntity:
         
-        sqlCommand.execute("""
-            INSERT INTO Proveedores (cuit, razon_social, domicilio, email, telefono, localidad_codigo_postal, provincia_nombre)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (
-            provider['cuit'],
-            provider['razon_social'],
-            provider['domicilio'],
-            provider['email'],
-            provider['telefono'],
-            provider['localidad_codigo_postal'],
-            provider['provincia_nombre']
-        ))
-
-    def _update(self, sqlCommand, provider):
+        self.session.add(provider)
+        self.session.commit()
         
-        sqlCommand.execute("""
-            UPDATE Proveedores SET razon_social=%s, domicilio=%s, telefono=%s, email=%s
-            WHERE cuit=%s""", (
-                provider['cuit'],
-                provider['razon_social'],
-                provider['domicilio'],
-                provider['email'],
-                provider['telefono'],
-                provider['localidad_codigo_postal'],
-                provider['provincia_nombre'],
-                
-            ))
-                
-           
+        return provider
+
+    def update(self,entityToUpdate: ProviderEntity, entity: ProviderEntity) -> ProviderEntity:
+        
+        entityToUpdate.cuit = entity.cuit
+        entityToUpdate.razonSocial = entity.company_name
+        entityToUpdate.domicilio = entity.address
+        entityToUpdate.email = entity.email
+        entityToUpdate.telefono = entity.phone
+        entityToUpdate.localidad_codigo_postal = entity.postal_code
+        entityToUpdate.provincia_nombre = entity.state_name
+        
+
+
+        self.session.commit()
+
+        return entityToUpdate

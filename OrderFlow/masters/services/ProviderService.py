@@ -1,36 +1,44 @@
-from repositories.ProviderRepository import ProviderRepository
-from configuration.LogConfiguration import LogConfiguration
 
-providerRepository = ProviderRepository() 
+from OrderFlow.masters.model.mappers.ProvoderMapper import ProviderMapper
+from model.dtos import ProviderDTO
+from repositories.ProviderRepository import ProviderRepository
+
 
 class ProviderService:
-    
-     
-    def __init__(self): 
-        self.log = LogConfiguration.getLogger()
-    
-    def createProvider(self, provider):
-        
-        self.log.info("createProvider - Ingresa con provider: ", body=provider)
+         
+    def __init__(self,log, session): 
+        self.log = log
+        self.providerRepository = ProviderRepository(session)
 
-        if providerRepository.findById(provider['cuit']):
-            self.log.warning("createProvider - El proveedor ya existe: ", body=provider)
+    def findAll(self) -> list[ProviderDTO]:
+
+        providerEntities = self.providerRepository.findAll()
+        return ProviderMapper.toListDTO(providerEntities)  
+    
+    def create(self, provider: ProviderDTO) -> ProviderDTO | None:
+        
+        self.log.info("create - Ingresa con provider: ", body=provider)
+
+        if self.providerRepository.existsById(provider.cuit):
+            self.log.warning("create - El proveedor ya existe: ", body=provider)
             return None
 
-        return providerRepository.save(provider)
+        providerToCreate = ProviderMapper.toEntity(provider)
+        return ProviderMapper.toDTO(self.providerRepository.save(providerToCreate))
 
-    def updateProvider(self, provider):
-        
-        self.log.info("updateProvider - Ingresa con provider: ", body=provider)
+    def update(self, provider: ProviderDTO) -> ProviderDTO | None:
 
-        if providerRepository.findById(provider['cuit']):
-            return providerRepository.save(provider)
-        else:
-            self.log.warning("updateProvider - El proveedor no existe: ", body=provider)
-            return False
+        self.log.info("update - Ingresa con provider: ", body=provider)
 
-    def deleteProvider(self, cuit):
+       if not self.providerRepository.existsById(provider.cuit):
+            self.log.warning("update - El proveedor no existe: ", body=provider)
+            return None
+
+        providerToUpdate = ProviderMapper.toEntity(provider)
+        return ProviderMapper.toDTO(self.providerRepository.save(providerToUpdate))
+
+    def delete(self, cuit):
         """
         Lógica de negocio para la eliminación del proveedor.
         """
-        return providerRepository.deleteProvider(cuit)
+        return self.providerRepository.deleteProvider(cuit)

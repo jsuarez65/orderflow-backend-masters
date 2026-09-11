@@ -1,36 +1,72 @@
-from flask import Blueprint, request 
-from services.ProviderService import ProviderService
-from configuration.LogConfiguration import LogConfiguration
+from dataclasses import asdict
+from logging import log
 
+from flask import Blueprint, request
+from model.dtos.ProviderDTO import ProviderDTO
+from services.ProviderService import ProvidertService
+from configuration.LogConfiguration import LogConfiguration
+from configuration.DatabaseConfiguration import sessionLocal
 
 ProviderBlueprint = Blueprint('provider', __name__, url_prefix='/master/provider')
 
-providerService = ProviderService()
+@ProviderBlueprint.route('', methods=['GET'])
+def getAll() -> tuple[list[dict], int]:
+    """ Obtiene todos los proveedores """
+    
+    log = LogConfiguration.getLogger()
+
+    log.info("getAll - Ingresa a obtener proveedores")
+   
+   session = sessionLocal()
+   prividerService = ProvidertService(log, session=session)
+   providers = providerService.findAll()
+
+   return{providers}, 200
 
 @ProviderBlueprint.route('', methods=['POST'])
-def createProvider():
-    
+def create()-> tuple[dict, int]:
+
+    session = sessionLocal()
     log = LogConfiguration.getLogger()
     
-    provider = request.get_json()
+    provider = ProviderDTO(**request.get_json())
 
-    log.info("createProvider - Ingresa con provider: ", body=provider)
+    providerService = ProvidertService(log, session=session)
 
-    if (providerService.createProvider(provider) == True):
-        return {"message": "El proveedor se ingresó correctamente"}, 200
+    log.info("create - Ingresa con provider: ", body=provider)
+
+    providerCreated = providerService.create(provider)
+
+    if providerCreated:
+        return asdict(providerCreated), 200
     else:
-        return {"message": "Error al ingresar el proveedor"}, 500
+        return {"message": "Error al crear el proveedor, debido a que ya existe"}, 500
 
 @ProviderBlueprint.route('', methods=['PUT'])
-def updateProvider():
+def update()-> tuple[dict, int]:
 
+    session = sessionLocal()
     log = LogConfiguration.getLogger()
+
+    providerService = ProvidertService(log, session=session)
+
+    provider = ProviderDTO(**request.get_json())
     
-    provider = request.get_json()
+    log.info("update - Ingresa con provider: ", body=provider)
 
-    log.info("updateProvider - Ingresa con provider: ", body=provider)
-
-    if (providerService.updateProvider(provider) == True):
-        return {"message": "El proveedor se actualizó correctamente"}, 200
+    providerUpdated = providerService.update(provider)
+    if (providerUpdated is not None):
+        return asdict(providerUpdated), 200
     else:
-        return {"message": "Error al actualizar el proveedor"}, 500
+        return {"message": "El producto a actualizar no existe"}, 500
+
+@ProviderBlueprint.route('/<cuit>', methods=['DELETE'])
+def deleteProvider(cuit):
+    log = LogConfiguration.getLogger()
+
+    log.info(f"deleteProvider - Ingresa con CUIT: {cuit}")
+
+    if providerService.deleteProvider(cuit):
+        return {"message": "El proveedor se eliminó correctamente"}, 200
+    else:
+        return {"message": "Error al eliminar el proveedor"}, 500
