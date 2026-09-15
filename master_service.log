@@ -1,0 +1,126 @@
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+127.0.0.1 - - [15/Sep/2026 12:52:02] "[33mPOST /master/clientes HTTP/1.1[0m" 404 -
+127.0.0.1 - - [15/Sep/2026 12:54:11] "[33mGET / HTTP/1.1[0m" 404 -
+127.0.0.1 - - [15/Sep/2026 12:54:38] "[33mGET / HTTP/1.1[0m" 404 -
+127.0.0.1 - - [15/Sep/2026 12:55:57] "[33mGET / HTTP/1.1[0m" 404 -
+ * Detected change in 'C:\\Users\\cbasr\\Mis_Proyectos\\FLASK-BACKEND\\orderflow-backend\\order_flow2\\orderflow-backend\\OrderFlow\\masters\\controllers\\CustomerController.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+ * Detected change in 'C:\\Users\\cbasr\\Mis_Proyectos\\FLASK-BACKEND\\orderflow-backend\\order_flow2\\orderflow-backend\\OrderFlow\\masters\\services\\ProductService.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+[2m2026-09-15 16:02:58[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+[2m2026-09-15 16:02:58[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+[2m2026-09-15 16:02:58[0m [[31m[1merror    [0m] [1mError obteniendo clientes: When initializing mapper Mapper[ProductEntity(productos)], expression 'ProductCategoryEntity' failed to locate a name ('ProductCategoryEntity'). If this is a class name, consider adding this relationship() to the <class 'model.entities.ProductEntity.ProductEntity'> class after both dependent classes have been defined.[0m
+127.0.0.1 - - [15/Sep/2026 13:02:58] "GET /master/cliente HTTP/1.1" 200 -
+[2m2026-09-15 16:03:18[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Don Juan', 'telefono': '11-5555-5555', 'email': 'juan@ferreteria.com'}[0m
+[2m2026-09-15 16:03:18[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con customer: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Don Juan', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+[2m2026-09-15 16:03:18[0m [[31m[1merror    [0m] [1mError guardando cliente: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[ProductEntity(productos)]'. Original exception was: When initializing mapper Mapper[ProductEntity(productos)], expression 'ProductCategoryEntity' failed to locate a name ('ProductCategoryEntity'). If this is a class name, consider adding this relationship() to the <class 'model.entities.ProductEntity.ProductEntity'> class after both dependent classes have been defined.[0m
+127.0.0.1 - - [15/Sep/2026 13:03:18] "[35m[1mPOST /master/cliente HTTP/1.1[0m" 500 -
+[2m2026-09-15 16:04:45[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+[2m2026-09-15 16:04:45[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+[2m2026-09-15 16:04:45[0m [[31m[1merror    [0m] [1mError obteniendo clientes: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[ProductEntity(productos)]'. Original exception was: When initializing mapper Mapper[ProductEntity(productos)], expression 'ProductCategoryEntity' failed to locate a name ('ProductCategoryEntity'). If this is a class name, consider adding this relationship() to the <class 'model.entities.ProductEntity.ProductEntity'> class after both dependent classes have been defined.[0m
+127.0.0.1 - - [15/Sep/2026 13:04:45] "GET /master/cliente HTTP/1.1" 200 -
+[2m2026-09-15 16:05:51[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Juan LaRenga', 'telefono': '11-5555-5555', 'email': 'juan@ferreteria.com'}[0m
+[2m2026-09-15 16:05:51[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con customer: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Juan LaRenga', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+[2m2026-09-15 16:05:51[0m [[31m[1merror    [0m] [1mError guardando cliente: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[ProductEntity(productos)]'. Original exception was: When initializing mapper Mapper[ProductEntity(productos)], expression 'ProductCategoryEntity' failed to locate a name ('ProductCategoryEntity'). If this is a class name, consider adding this relationship() to the <class 'model.entities.ProductEntity.ProductEntity'> class after both dependent classes have been defined.[0m
+127.0.0.1 - - [15/Sep/2026 13:05:51] "[35m[1mPOST /master/cliente HTTP/1.1[0m" 500 -
+ * Detected change in 'C:\\Users\\cbasr\\Mis_Proyectos\\FLASK-BACKEND\\orderflow-backend\\order_flow2\\orderflow-backend\\OrderFlow\\masters\\model\\entities\\CustomerEntity.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+ * Detected change in 'C:\\Users\\cbasr\\Mis_Proyectos\\FLASK-BACKEND\\orderflow-backend\\order_flow2\\orderflow-backend\\OrderFlow\\masters\\model\\entities\\CustomerEntity.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+[2m2026-09-15 16:08:07[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Juan LaRenga', 'telefono': '11-5555-5555', 'email': 'juan@ferreteria.com'}[0m
+[2m2026-09-15 16:08:07[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con customer: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Juan LaRenga', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+[2m2026-09-15 16:08:07[0m [[31m[1merror    [0m] [1mError guardando cliente: When initializing mapper Mapper[ProductEntity(productos)], expression 'ProductCategoryEntity' failed to locate a name ('ProductCategoryEntity'). If this is a class name, consider adding this relationship() to the <class 'model.entities.ProductEntity.ProductEntity'> class after both dependent classes have been defined.[0m
+127.0.0.1 - - [15/Sep/2026 13:08:07] "[35m[1mPOST /master/cliente HTTP/1.1[0m" 500 -
+[2m2026-09-15 16:08:08[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Juan LaRenga', 'telefono': '11-5555-5555', 'email': 'juan@ferreteria.com'}[0m
+[2m2026-09-15 16:08:08[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con customer: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Juan LaRenga', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+[2m2026-09-15 16:08:08[0m [[31m[1merror    [0m] [1mError guardando cliente: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[ProductEntity(productos)]'. Original exception was: When initializing mapper Mapper[ProductEntity(productos)], expression 'ProductCategoryEntity' failed to locate a name ('ProductCategoryEntity'). If this is a class name, consider adding this relationship() to the <class 'model.entities.ProductEntity.ProductEntity'> class after both dependent classes have been defined.[0m
+127.0.0.1 - - [15/Sep/2026 13:08:08] "[35m[1mPOST /master/cliente HTTP/1.1[0m" 500 -
+ * Detected change in 'C:\\Users\\cbasr\\Mis_Proyectos\\FLASK-BACKEND\\orderflow-backend\\order_flow2\\orderflow-backend\\OrderFlow\\masters\\model\\entities\\CustomerEntity.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+[2m2026-09-15 16:08:49[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Juan LaRenga', 'telefono': '11-5555-5555', 'email': 'juan@ferreteria.com'}[0m
+[2m2026-09-15 16:08:49[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con customer: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Juan LaRenga', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+[2m2026-09-15 16:08:49[0m [[31m[1merror    [0m] [1mError guardando cliente: When initializing mapper Mapper[ProductEntity(productos)], expression 'ProductCategoryEntity' failed to locate a name ('ProductCategoryEntity'). If this is a class name, consider adding this relationship() to the <class 'model.entities.ProductEntity.ProductEntity'> class after both dependent classes have been defined.[0m
+127.0.0.1 - - [15/Sep/2026 13:08:49] "[35m[1mPOST /master/cliente HTTP/1.1[0m" 500 -
+[2m2026-09-15 16:09:30[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+[2m2026-09-15 16:09:30[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+[2m2026-09-15 16:09:30[0m [[31m[1merror    [0m] [1mError obteniendo clientes: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[ProductEntity(productos)]'. Original exception was: When initializing mapper Mapper[ProductEntity(productos)], expression 'ProductCategoryEntity' failed to locate a name ('ProductCategoryEntity'). If this is a class name, consider adding this relationship() to the <class 'model.entities.ProductEntity.ProductEntity'> class after both dependent classes have been defined.[0m
+127.0.0.1 - - [15/Sep/2026 13:09:30] "GET /master/cliente HTTP/1.1" 200 -
+[2m2026-09-15 16:10:57[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Juan LaRenga', 'telefono': '11-5555-5555', 'email': 'juan@ferreteria.com'}[0m
+[2m2026-09-15 16:10:57[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con customer: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Juan LaRenga', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+[2m2026-09-15 16:10:57[0m [[31m[1merror    [0m] [1mError guardando cliente: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[ProductEntity(productos)]'. Original exception was: When initializing mapper Mapper[ProductEntity(productos)], expression 'ProductCategoryEntity' failed to locate a name ('ProductCategoryEntity'). If this is a class name, consider adding this relationship() to the <class 'model.entities.ProductEntity.ProductEntity'> class after both dependent classes have been defined.[0m
+127.0.0.1 - - [15/Sep/2026 13:10:57] "[35m[1mPOST /master/cliente HTTP/1.1[0m" 500 -
+[2m2026-09-15 16:12:42[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Don Juan', 'telefono': '11-5555-5555', 'email': 'juan@ferreteria.com'}[0m
+[2m2026-09-15 16:12:42[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con customer: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Don Juan', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+[2m2026-09-15 16:12:42[0m [[31m[1merror    [0m] [1mError guardando cliente: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[ProductEntity(productos)]'. Original exception was: When initializing mapper Mapper[ProductEntity(productos)], expression 'ProductCategoryEntity' failed to locate a name ('ProductCategoryEntity'). If this is a class name, consider adding this relationship() to the <class 'model.entities.ProductEntity.ProductEntity'> class after both dependent classes have been defined.[0m
+127.0.0.1 - - [15/Sep/2026 13:12:42] "[35m[1mPOST /master/cliente HTTP/1.1[0m" 500 -
+ * Detected change in 'C:\\Users\\cbasr\\Mis_Proyectos\\FLASK-BACKEND\\orderflow-backend\\order_flow2\\orderflow-backend\\OrderFlow\\masters\\repositories\\CustomerRepository.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+ * Detected change in 'C:\\Users\\cbasr\\Mis_Proyectos\\FLASK-BACKEND\\orderflow-backend\\order_flow2\\orderflow-backend\\OrderFlow\\masters\\repositories\\CustomerRepository.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+[2m2026-09-15 16:21:58[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Don Juan', 'telefono': '11-5555-5555', 'email': 'juan@ferreteria.com'}[0m
+[2m2026-09-15 16:21:58[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con customer: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Don Juan', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+[2m2026-09-15 16:21:58[0m [[31m[1merror    [0m] [1mError guardando cliente: When initializing mapper Mapper[ProductEntity(productos)], expression 'ProductCategoryEntity' failed to locate a name ('ProductCategoryEntity'). If this is a class name, consider adding this relationship() to the <class 'model.entities.ProductEntity.ProductEntity'> class after both dependent classes have been defined.[0m
+127.0.0.1 - - [15/Sep/2026 13:21:58] "[35m[1mPOST /master/cliente HTTP/1.1[0m" 500 -
+ * Detected change in 'C:\\Users\\cbasr\\Mis_Proyectos\\FLASK-BACKEND\\orderflow-backend\\order_flow2\\orderflow-backend\\OrderFlow\\masters\\model\\entities\\ProductEntity.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+[2m2026-09-15 16:26:15[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Don Juan', 'telefono': '11-5555-5555', 'email': 'juan@ferreteria.com'}[0m
+[2m2026-09-15 16:26:15[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con customer: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Don Juan', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+127.0.0.1 - - [15/Sep/2026 13:26:20] "POST /master/cliente HTTP/1.1" 200 -
+ * Detected change in 'C:\\Users\\cbasr\\Mis_Proyectos\\FLASK-BACKEND\\orderflow-backend\\order_flow2\\orderflow-backend\\OrderFlow\\masters\\model\\entities\\ProductEntity.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+[2m2026-09-15 16:28:51[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+[2m2026-09-15 16:28:51[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+127.0.0.1 - - [15/Sep/2026 13:28:52] "GET /master/cliente HTTP/1.1" 200 -
+[2m2026-09-15 16:38:24[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con cliente para actualizar: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Juan LaRenga', 'telefono': '11-5555-5555', 'email': 'juan@ferreteria.com'}[0m
+[2m2026-09-15 16:38:24[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con customer para actualizar: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Juan LaRenga', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+[2m2026-09-15 16:38:24[0m [[31m[1merror    [0m] [1mError guardando cliente: (psycopg2.OperationalError) SSL connection has been closed unexpectedly
+
+[SQL: SELECT clientes.cuit AS clientes_cuit, clientes.razon_social AS clientes_razon_social, clientes.telefono AS clientes_telefono, clientes.email AS clientes_email 
+FROM clientes 
+WHERE clientes.cuit = %(pk_1)s]
+[parameters: {'pk_1': '20-12345678-9'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)[0m
+127.0.0.1 - - [15/Sep/2026 13:38:24] "[35m[1mPUT /master/cliente HTTP/1.1[0m" 500 -
+[2m2026-09-15 16:40:46[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con cliente para actualizar: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Don Juan S.A.', 'telefono': '11-9999-9999', 'email': 'nuevo_mail@ferreteria.com'}[0m
+[2m2026-09-15 16:40:46[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con customer para actualizar: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Don Juan S.A.', telefono='11-9999-9999', email='nuevo_mail@ferreteria.com')[0m
+127.0.0.1 - - [15/Sep/2026 13:40:47] "PUT /master/cliente HTTP/1.1" 200 -
+[2m2026-09-15 16:41:22[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con cliente para actualizar: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Juan LaRenga S.A.', 'telefono': '11-9999-9999', 'email': 'nuevo_mail@ferreteria.com'}[0m
+[2m2026-09-15 16:41:22[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con customer para actualizar: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Juan LaRenga S.A.', telefono='11-9999-9999', email='nuevo_mail@ferreteria.com')[0m
+127.0.0.1 - - [15/Sep/2026 13:41:22] "PUT /master/cliente HTTP/1.1" 200 -
+[2m2026-09-15 16:41:29[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+[2m2026-09-15 16:41:29[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+127.0.0.1 - - [15/Sep/2026 13:41:29] "GET /master/cliente HTTP/1.1" 200 -
+ * Detected change in 'C:\\Users\\cbasr\\Mis_Proyectos\\FLASK-BACKEND\\orderflow-backend\\order_flow2\\orderflow-backend\\OrderFlow\\masters\\repositories\\CustomerRepository.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+ * Detected change in 'C:\\Users\\cbasr\\Mis_Proyectos\\FLASK-BACKEND\\orderflow-backend\\order_flow2\\orderflow-backend\\OrderFlow\\masters\\configuration\\DatabaseConfiguration.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+[2m2026-09-15 16:58:15[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con cliente para actualizar: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Juan LaRenga S.A.', 'telefono': '11-0303-456', 'email': 'nuevo_mail@ferreteria.com'}[0m
+[2m2026-09-15 16:58:15[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con customer para actualizar: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Juan LaRenga S.A.', telefono='11-0303-456', email='nuevo_mail@ferreteria.com')[0m
+127.0.0.1 - - [15/Sep/2026 13:58:17] "PUT /master/cliente HTTP/1.1" 200 -
