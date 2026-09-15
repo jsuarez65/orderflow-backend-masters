@@ -124,3 +124,19 @@ WHERE clientes.cuit = %(pk_1)s]
 [2m2026-09-15 16:58:15[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con cliente para actualizar: [0m [36mbody[0m=[35m{'cuit': '20-12345678-9', 'razonSocial': 'Ferreteria Juan LaRenga S.A.', 'telefono': '11-0303-456', 'email': 'nuevo_mail@ferreteria.com'}[0m
 [2m2026-09-15 16:58:15[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con customer para actualizar: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razonSocial='Ferreteria Juan LaRenga S.A.', telefono='11-0303-456', email='nuevo_mail@ferreteria.com')[0m
 127.0.0.1 - - [15/Sep/2026 13:58:17] "PUT /master/cliente HTTP/1.1" 200 -
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 158-576-253
+[2m2026-09-15 17:19:36[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+[2m2026-09-15 17:19:36[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+127.0.0.1 - - [15/Sep/2026 14:19:38] "GET /master/cliente HTTP/1.1" 200 -
+[2m2026-09-15 17:20:01[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+[2m2026-09-15 17:20:01[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+127.0.0.1 - - [15/Sep/2026 14:20:01] "GET /master/cliente HTTP/1.1" 200 -
+127.0.0.1 - - [15/Sep/2026 14:21:40] "OPTIONS /master/cliente HTTP/1.1" 200 -
+[2m2026-09-15 17:21:40[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35m{'cuit': '20-12345678-5', 'razonSocial': 'Otra Empresa Mas', 'telefono': '1166554433', 'email': 'OtraMas@gmail.com'}[0m
+[2m2026-09-15 17:21:40[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con customer: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-5', razonSocial='Otra Empresa Mas', telefono='1166554433', email='OtraMas@gmail.com')[0m
+127.0.0.1 - - [15/Sep/2026 14:21:40] "POST /master/cliente HTTP/1.1" 200 -
