@@ -9,11 +9,11 @@ class CustomerRepository:
     def __init__(self):
         self.log = LogConfiguration.getLogger()
 
-    def save(self, customer_dto: CustomerDTO) -> CustomerDTO | None:
+    def save(self, customer: CustomerDTO) -> CustomerDTO | None:
         session = sessionLocal()
         try:
             # 1. El Mapper convierte el DTO a Entity
-            entity = CustomerMapper.toEntity(customer_dto)
+            entity = CustomerMapper.toEntity(customer)
             
             # 2. SQLAlchemy hace el INSERT o UPDATE
             session.merge(entity)
@@ -31,6 +31,7 @@ class CustomerRepository:
             session.close()
 
     def getAllCustomers(self) -> list[CustomerDTO]:
+
         session = sessionLocal()
         try:
             entities = session.query(CustomerEntity).all()
@@ -42,9 +43,10 @@ class CustomerRepository:
             session.close()
 
     def deleteCustomer(self, cuit: str) -> bool:
+
         session = sessionLocal()
         try:
-            entity = session.query(CustomerEntity).filter(CustomerEntity.cuit == cuit).first()
+            entity = session.query(CustomerEntity).filter(CustomerEntity.cuit == cuit).first()              .first()
             if entity:
                 session.delete(entity)
                 session.commit()

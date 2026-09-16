@@ -1,8 +1,10 @@
-from pydantic import BaseModel
+from dataclasses import dataclass
 from typing import Optional
 
-class CustomerDTO(BaseModel):
-    cuit: str  # Obligatorio
-    razon_social: str # Obligatorio
-    telefono: Optional[str] = None # Opcional
-    email: Optional[str] = None # Opcional
+
+@dataclass
+class CustomerDTO():
+    cuit: str  
+    razon_social: str 
+    telefono: Optional[str] = None 
+    email: Optional[str] = None 
