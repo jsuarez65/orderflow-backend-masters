@@ -14,11 +14,11 @@ class ProviderMapper:
         return ProviderDTO(
             cuit=entity.cuit,
             company_name=entity.razonSocial,
-            address=entity.direccion,
+            address=entity.domicilio,
             email=entity.email,
             phone=entity.telefono,
-            postal_code=entity.localidad_codigo_postal,
-            state_name=entity.localidad_nombre
+            postalCode=entity.localidadCodigoPostal,
+            stateName=entity.provinciaNombre
         )
     @staticmethod
     def toEntity(dto: ProviderDTO) -> ProviderEntity:
@@ -28,12 +28,12 @@ class ProviderMapper:
 
         return ProviderEntity(
             cuit=dto.cuit,
-            razonSocial=dto.company_name,
+            razonSocial=dto.companyName,
             direccion=dto.address,
             email=dto.email,
             telefono=dto.phone,
-            localidad_codigo_postal=dto.postal_code,
-            localidad_nombre=dto.state_name
+            localidadCodigoPostal=dto.postalCode,
+            provinciaNombre=dto.stateName
         )
 
     @staticmethod

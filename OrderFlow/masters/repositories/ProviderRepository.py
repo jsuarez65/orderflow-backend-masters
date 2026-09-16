@@ -65,13 +65,13 @@ class ProviderRepository:
     def _update(self,entityToUpdate: ProviderEntity, entity: ProviderEntity) -> ProviderEntity:
         
         entityToUpdate.cuit = entity.cuit
-        entityToUpdate.razonSocial = entity.company_name
+        entityToUpdate.razonSocial = entity.companyName
         entityToUpdate.domicilio = entity.address
         entityToUpdate.email = entity.email
         entityToUpdate.telefono = entity.phone
-        entityToUpdate.localidadCodigoPostal = entity.postal_code
-        entityToUpdate.provinciaNombre = entity.state_name
-        
+        entityToUpdate.localidadCodigoPostal = entity.postalCode
+        entityToUpdate.provinciaNombre = entity.stateName
+
         self.session.commit()
 
         return entityToUpdate
