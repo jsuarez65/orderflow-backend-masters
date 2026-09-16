@@ -11,9 +11,9 @@ swagger = Swagger(masterMain)
 
 CORS(masterMain)
 
-masterMain.register_blueprint(ProductBlueprint)
+# masterMain.register_blueprint(ProductBlueprint)
 masterMain.register_blueprint(ProviderBlueprint)
-masterMain.register_blueprint(CustomerBlueprint)
+# masterMain.register_blueprint(CustomerBlueprint)
 
 LogConfiguration.configure()
 

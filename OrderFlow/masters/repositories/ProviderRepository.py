@@ -1,5 +1,6 @@
-from model.dtos import ProviderDTO
+
 from model.entities import ProviderEntity
+from model.dtos import ProviderDTO
 
 
 
@@ -19,9 +20,8 @@ class ProviderRepository:
 
     def save(self, provider: ProviderEntity) -> ProviderEntity | None:
 
-
         try:
-            providerFound = self.findBycuit(provider.cuit)
+            providerFound = self._findByCuit(provider.cuit)
 
             if providerFound:
                 self.log.warning(
@@ -37,9 +37,9 @@ class ProviderRepository:
             return None
 
     def existsById(self, cuit:str) -> bool:
-        return self._findBycuit(cuit) is not None
+        return self._findByCuit(cuit) is not None
 
-    def _findBycuit(self, cuit:str) -> ProviderEntity | None:
+    def _findByCuit(self, cuit:str) -> ProviderEntity | None:
         
         try:
             return (
@@ -50,7 +50,7 @@ class ProviderRepository:
 
         except Exception as ex:
             self.log.error(
-                f"_findBycuit - Error al buscar proveedor: {str(ex)}"
+                f"_findByCuit - Error al buscar proveedor: {str(ex)}"
             )
             return None
 
@@ -62,18 +62,16 @@ class ProviderRepository:
         
         return provider
 
-    def update(self,entityToUpdate: ProviderEntity, entity: ProviderEntity) -> ProviderEntity:
+    def _update(self,entityToUpdate: ProviderEntity, entity: ProviderEntity) -> ProviderEntity:
         
         entityToUpdate.cuit = entity.cuit
         entityToUpdate.razonSocial = entity.company_name
         entityToUpdate.domicilio = entity.address
         entityToUpdate.email = entity.email
         entityToUpdate.telefono = entity.phone
-        entityToUpdate.localidad_codigo_postal = entity.postal_code
-        entityToUpdate.provincia_nombre = entity.state_name
+        entityToUpdate.localidadCodigoPostal = entity.postal_code
+        entityToUpdate.provinciaNombre = entity.state_name
         
-
-
         self.session.commit()
 
         return entityToUpdate

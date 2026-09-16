@@ -1,7 +1,7 @@
 from dataclasses import asdict
 from logging import log
 
-from flask import Blueprint, request
+from flask import Blueprint, request, session
 from model.dtos.ProviderDTO import ProviderDTO
 from services.ProviderService import ProvidertService
 from configuration.LogConfiguration import LogConfiguration
@@ -40,16 +40,16 @@ def getAll() -> tuple[list[dict], int]:
             type: string
 
     """
-    
+
     log = LogConfiguration.getLogger()
 
     log.info("getAll - Ingresa a obtener proveedores")
-   
-   session = sessionLocal()
-   providerService = ProvidertService(log, session=session)
-   providers = providerService.findAll()
 
-   return{providers}, 200
+    session = sessionLocal()
+    providerService = ProvidertService(log, session=session)
+    providers = providerService.findAll()
+
+    return{providers}, 200
 
 @ProviderBlueprint.route('', methods=['POST'])
 def create()-> tuple[dict, int]:
@@ -90,9 +90,13 @@ def update()-> tuple[dict, int]:
 
 @ProviderBlueprint.route('/<cuit>', methods=['DELETE'])
 def deleteProvider(cuit):
+
+    session = sessionLocal()
     log = LogConfiguration.getLogger()
 
     log.info(f"deleteProvider - Ingresa con CUIT: {cuit}")
+    
+    providerService = ProvidertService(log, session=session)
 
     if providerService.deleteProvider(cuit):
         return {"message": "El proveedor se eliminó correctamente"}, 200

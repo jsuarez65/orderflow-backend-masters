@@ -5,10 +5,10 @@ from typing import Optional
 
 @dataclass
 class ProviderDTO:
-    cuit: Optional[str]=None 
-    company_name: Optional[str]=None 
+    cuit: str=None 
+    companyName: str=None 
     address: Optional[str]=None 
     email: Optional[str]=None 
     phone: Optional[str]=None 
-    postal_code: Optional[str]=None 
-    state_name: Optional[str]=None 
+    postalCode: Optional[str]=None 
+    stateName: Optional[str]=None 

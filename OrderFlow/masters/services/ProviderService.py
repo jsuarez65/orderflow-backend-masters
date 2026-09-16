@@ -1,5 +1,5 @@
 
-from OrderFlow.masters.model.mappers.ProvoderMapper import ProviderMapper
+from model.mappers.ProviderMapper import ProviderMapper
 from model.dtos import ProviderDTO
 from repositories.ProviderRepository import ProviderRepository
 
@@ -30,7 +30,7 @@ class ProviderService:
 
         self.log.info("update - Ingresa con provider: ", body=provider)
 
-       if not self.providerRepository.existsById(provider.cuit):
+        if not self.providerRepository.existsById(provider.cuit):
             self.log.warning("update - El proveedor no existe: ", body=provider)
             return None
 

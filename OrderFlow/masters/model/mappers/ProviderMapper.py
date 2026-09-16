@@ -1,12 +1,12 @@
 from decimal import Decimal
 
-from OrderFlow.masters.model.entities.ProviderEntity import ProiderEntity
-from OrderFlow.masters.model.dtos.ProviderDTO import ProviderDTO
+from model.entities import ProviderEntity
+from model.dtos.ProviderDTO import ProviderDTO
 
 class ProviderMapper:
 
     @staticmethod
-    def toDTO(entity: ProiderEntity) -> ProviderDTO:
+    def toDTO(entity: ProviderEntity) -> ProviderDTO:
 
         if entity is None:
             return None
@@ -21,12 +21,12 @@ class ProviderMapper:
             state_name=entity.localidad_nombre
         )
     @staticmethod
-    def toEntity(dto: ProviderDTO) -> ProiderEntity:
+    def toEntity(dto: ProviderDTO) -> ProviderEntity:
         
         if dto is None:
             return None
 
-        return ProiderEntity(
+        return ProviderEntity(
             cuit=dto.cuit,
             razonSocial=dto.company_name,
             direccion=dto.address,
@@ -37,7 +37,7 @@ class ProviderMapper:
         )
 
     @staticmethod
-    def toListDTO(providers: list[ProiderEntity]) -> list[ProviderDTO]:
+    def toListDTO(providers: list[ProviderEntity]) -> list[ProviderDTO]:
 
         if not providers:
             return []
