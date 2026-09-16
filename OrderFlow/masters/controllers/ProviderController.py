@@ -11,14 +11,42 @@ ProviderBlueprint = Blueprint('provider', __name__, url_prefix='/master/provider
 
 @ProviderBlueprint.route('', methods=['GET'])
 def getAll() -> tuple[list[dict], int]:
-    """ Obtiene todos los proveedores """
+    """ Create a new provider in the database.
+    ---
+    responses:
+      200:
+        description: A list of providers
+        schema:
+          type: array
+          items:
+            $ref: '#/definitions/ProviderDTO'
+    definitions:
+      ProviderDTO:
+        type: object
+        properties:
+          cuit:
+            type: string
+          company_name:
+            type: string
+          address:
+            type: string
+          email:
+            type: string
+          phone:
+            type: string
+          postal_code:
+            type: string
+          state_name:
+            type: string
+
+    """
     
     log = LogConfiguration.getLogger()
 
     log.info("getAll - Ingresa a obtener proveedores")
    
    session = sessionLocal()
-   prividerService = ProvidertService(log, session=session)
+   providerService = ProvidertService(log, session=session)
    providers = providerService.findAll()
 
    return{providers}, 200
