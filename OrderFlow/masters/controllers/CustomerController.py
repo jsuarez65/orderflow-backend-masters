@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from dataclasses import asdict
 from services.CustomerService import CustomerService
 from model.dtos.CustomerDTO import CustomerDTO
 from configuration.LogConfiguration import LogConfiguration
@@ -24,7 +25,7 @@ def createCustomer():
 
 
 @CustomerBlueprint.route('', methods=['GET'])
-def getCustomers():
+def getCustomers() -> tuple[list[dict], int]:
 
     log = LogConfiguration.getLogger()
 
@@ -32,7 +33,7 @@ def getCustomers():
 
     customers = customerService.getCustomers()
     if customers is not None:
-        return {customers}, 200
+        return [asdict(customer) for customer in customers], 200
     else:
         return {"message": "Error al obtener los clientes"}, 500
 
