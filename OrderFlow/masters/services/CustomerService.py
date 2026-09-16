@@ -10,16 +10,16 @@ class CustomerService:
         self.log = LogConfiguration.getLogger()
     
     def createCustomer(self, customer: CustomerDTO):
-        self.log.info("createCustomer - Ingresa con cliente: ", body=customer)
-        return customerRepository.insertCustomer(customer)
+        self.log.info("createCustomer - Ingresa con customer: ", body=customer)
+        return customerRepository.save(customer)
 
     def getCustomers(self):
         self.log.info("getCustomers - Ingresa a obtener todos los clientes")
         return customerRepository.getAllCustomers()
 
     def updateCustomer(self, customer: CustomerDTO):
-        self.log.info("updateCustomer - Ingresa con cliente para actualizar: ", body=customer)
-        return customerRepository.updateCustomer(customer)
+        self.log.info("updateCustomer - Ingresa con customer para actualizar: ", body=customer)
+        return customerRepository.save(customer)
 
     def deleteCustomer(self, cuit: str):
         self.log.info(f"deleteCustomer - Ingresa para eliminar el CUIT: {cuit}")
