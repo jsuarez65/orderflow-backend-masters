@@ -1,0 +1,19 @@
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 664-018-547
+127.0.0.1 - - [02/Sep/2026 14:59:44] "[33mPOST /master/customer HTTP/1.1[0m" 404 -
+[2m2026-09-02 18:01:49[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razon_social='Ferreteria Don Juan', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+[2m2026-09-02 18:01:49[0m [[32m[1minfo     [0m] [1mcreateCustomer - Ingresa con cliente: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razon_social='Ferreteria Don Juan', telefono='11-5555-5555', email='juan@ferreteria.com')[0m
+127.0.0.1 - - [02/Sep/2026 15:01:49] "POST /master/cliente HTTP/1.1" 200 -
+[2m2026-09-02 18:03:14[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+[2m2026-09-02 18:03:14[0m [[32m[1minfo     [0m] [1mgetCustomers - Ingresa a obtener todos los clientes[0m
+127.0.0.1 - - [02/Sep/2026 15:03:14] "GET /master/cliente HTTP/1.1" 200 -
+[2m2026-09-02 18:08:09[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con cliente para actualizar: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razon_social='Ferreteria Don Juan S.A.', telefono='11-9999-9999', email='nuevo_mail@ferreteria.com')[0m
+[2m2026-09-02 18:08:09[0m [[32m[1minfo     [0m] [1mupdateCustomer - Ingresa con cliente para actualizar: [0m [36mbody[0m=[35mCustomerDTO(cuit='20-12345678-9', razon_social='Ferreteria Don Juan S.A.', telefono='11-9999-9999', email='nuevo_mail@ferreteria.com')[0m
+127.0.0.1 - - [02/Sep/2026 15:08:09] "PUT /master/cliente HTTP/1.1" 200 -
+[2m2026-09-02 18:09:02[0m [[32m[1minfo     [0m] [1mdeleteCustomer - Ingresa para eliminar el CUIT: 20-12345678-9[0m
+[2m2026-09-02 18:09:02[0m [[32m[1minfo     [0m] [1mdeleteCustomer - Ingresa para eliminar el CUIT: 20-12345678-9[0m
+127.0.0.1 - - [02/Sep/2026 15:09:03] "DELETE /master/cliente?cuit=20-12345678-9 HTTP/1.1" 200 -
