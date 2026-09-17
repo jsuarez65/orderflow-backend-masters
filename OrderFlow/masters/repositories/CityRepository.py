@@ -2,7 +2,7 @@ from openpyxl import load_workbook
 from configuration.DatabaseConfiguration import DatabaseConfiguration
 from configuration.LogConfiguration import LogConfiguration
 
-class CitiesRepository:
+class CityRepository:
     def __init__(self):
         self.db = DatabaseConfiguration.getConnection()
         self.log = LogConfiguration.getLogger()
