@@ -1,120 +1,100 @@
-from configuration.DatabaseConfiguration import DatabaseConfiguration
+from sqlalchemy.exc import IntegrityError
+
+from configuration.DatabaseConfiguration import SessionLocal
 from configuration.LogConfiguration import LogConfiguration
+from model.entities.UserEntity import UserEntity
 from model.dto import userDTO
+from mappers.UsersMappers import UserMapper
+
 
 class UsersRepository:
 
-    def __init__(self):
-        self.log = LogConfiguration.getLogger()
+    def __init__(self, log=None):
+        self.log = log or LogConfiguration.getLogger()
 
-    def _getConnection(self):
-        return DatabaseConfiguration.getConnection()
-    
-    def save(self, user : userDTO) -> userDTO | None:
-        db = self._getConnection()
-        cur = db.cursor()
+    def save(self, user: userDTO) -> userDTO | None:
+        session = SessionLocal()
         try:
-            cur.execute("SELECT 1 FROM usuarios WHERE username = %s", (user.username,))
-            if cur.fetchone():
-                self.log.warning("save - El usuario ya existe: ", body=user)
-                return False
-            
-            cur.execute("INSERT INTO usuarios (username, password, rol) VALUES (%s, %s, %s)", 
-                        (user.username, user.password, user.rol))
-            db.commit()
-            return True
-
+            entity = UserMapper.toEntity(user)
+            session.merge(entity)
+            session.commit()
+            return UserMapper.toDTO(entity)
         except Exception as ex:
-            db.rollback()
-            self.log.error(f"save - Error al crear usuario: {str(ex)}")
-            return False
-
-        finally:
-            cur.close()
-
-    def insertUser(self, user : userDTO) -> userDTO | None:
-        db = self._getConnection()
-        cur = db.cursor()
-        try:
-            
-            cur.execute("SELECT 1 FROM usuarios WHERE username = %s", (user.username,))
-            if cur.fetchone():
-                self.log.warning("insertUser - El usuario ya existe: ", body=user)
-                return False
-            
-            cur.execute("INSERT INTO usuarios (username, password, rol) VALUES (%s, %s, %s)", 
-                        (user.username, user.password, user.rol))
-            db.commit()
-            return True
-
-        except Exception as ex:
-            db.rollback()
-            self.log.error(f"insertUser - Error al crear usuario: {str(ex)}")
-            return False
-
-        finally:
-            cur.close()
-                
-    def existById(self, username : str) -> bool:
-        db = self._getConnection()
-        cur = db.cursor()
-        try:
-            cur.execute("SELECT * FROM usuarios WHERE username = %s", (username,))
-            return cur.fetchone()
-        
-        except Exception as ex:
-            self.log.error(f"findByUsername - Error al buscar usuario: {str(ex)}")
+            session.rollback()
+            self.log.error(f"save - Error guardando usuario: {str(ex)}")
             return None
-        
         finally:
-            cur.close()
+            session.close()
 
-    def updateUser(self, usernameActual, userData : userDTO) -> userDTO | None:
-        db = self._getConnection()
-        cur = db.cursor()
+    def findByUsername(self, username: str) -> userDTO | None:
+        session = SessionLocal()
         try:
-            
-            cur.execute("SELECT 1 FROM usuarios WHERE username = %s", (usernameActual,))
-            if not cur.fetchone():
-                self.log.warning(f"updateUser - El usuario '{usernameActual}' no existe")
+            entity = session.query(UserEntity).filter(
+                UserEntity.username == username
+            ).first()
+            return UserMapper.toDTO(entity)
+        except Exception as ex:
+            self.log.error(f"findByUsername - Error: {str(ex)}")
+            return None
+        finally:
+            session.close()
+
+    def getAll(self) -> list[userDTO]:
+        session = SessionLocal()
+        try:
+            entities = session.query(UserEntity).all()
+            return UserMapper.toListDTO(entities)
+        except Exception as ex:
+            self.log.error(f"getAll - Error: {str(ex)}")
+            return []
+        finally:
+            session.close()
+
+    def update(self, usernameActual: str, user: userDTO) -> bool:
+        session = SessionLocal()
+        try:
+            entity = session.query(UserEntity).filter(
+                UserEntity.username == usernameActual
+            ).first()
+            if not entity:
                 return False
 
-            if usernameActual != userData['username']:
-                cur.execute("SELECT 1 FROM usuarios WHERE username = %s", (userData['username'],))
-                if cur.fetchone():
-                    self.log.warning(f"updateUser - El nuevo nombre de usuario '{userData['username']}' ya existe")
+            if user.username and user.username != usernameActual:
+                duplicate = session.query(UserEntity).filter(
+                    UserEntity.username == user.username
+                ).first()
+                if duplicate:
                     return False
+                entity.username = user.username
 
+            if user.password:
+                entity.password = user.password
+            if user.rol:
+                entity.rol = user.rol
 
-            cur.execute("""
-                UPDATE usuarios 
-                SET username = %s, password = %s, rol = %s 
-                WHERE username = %s
-            """, (userData['username'], userData['password'], userData['rol'], usernameActual))
-            
-            db.commit()
+            session.commit()
             return True
-        
         except Exception as ex:
-            db.rollback()
-            self.log.error(f"updateUser - Error al actualizar usuario: {str(ex)}")
+            session.rollback()
+            self.log.error(f"update - Error: {str(ex)}")
             return False
-        
         finally:
-            cur.close()
+            session.close()
 
-    def deleteUser(self, username : userDTO) -> userDTO | None:
-        db = self._getConnection()
-        cur = db.cursor()
+    def delete(self, username: str) -> bool:
+        session = SessionLocal()
         try:
-            cur.execute("DELETE FROM usuarios WHERE username = %s", (username,))
-            db.commit()
-            return cur.rowcount > 0
-        
+            entity = session.query(UserEntity).filter(
+                UserEntity.username == username
+            ).first()
+            if not entity:
+                return False
+            session.delete(entity)
+            session.commit()
+            return True
         except Exception as ex:
-            db.rollback()
-            self.log.error(f"deleteUser - Error al eliminar usuario: {str(ex)}")
+            session.rollback()
+            self.log.error(f"delete - Error: {str(ex)}")
             return False
-        
         finally:
-            cur.close()
+            session.close()

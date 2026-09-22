@@ -1,128 +1,121 @@
-from configuration.DatabaseConfiguration import DatabaseConfiguration
+from enum import Enum
+
+from sqlalchemy.exc import IntegrityError
+
+from configuration.DatabaseConfiguration import SessionLocal
 from configuration.LogConfiguration import LogConfiguration
+from model.entities.RolEntity import RolEntity
 from model.dto import rolDTO
+from mappers.RolMappers import RolMapper
+
+
+class DeleteResult(Enum):
+    OK = "OK"
+    NOT_FOUND = "NOT_FOUND"
+    IN_USE = "IN_USE"
+    ERROR = "ERROR"
+
 
 class RolRepository:
 
-    def __init__(self):
-        self.log = LogConfiguration.getLogger()
+    def __init__(self, log=None):
+        self.log = log or LogConfiguration.getLogger()
 
-    def _getConnection(self):
-        return DatabaseConfiguration.getConnection()
-    
-    def save(self, rol : rolDTO) -> rolDTO | None:
-        db = self._getConnection()
-        cur = db.cursor()
+    def save(self, rol: rolDTO) -> rolDTO | None:
+        session = SessionLocal()
         try:
-            cur.execute("SELECT 1 FROM rol WHERE rol = %s", (rol.rol,))
-            if cur.fetchone():
-                self.log.warning("save - El rol ya existe: ", body=rol)
-                return False
-            
-            cur.execute("INSERT INTO rol (rol) VALUES (%s)", (rol.rol,))
-            db.commit()
-            return True
+            entity = RolMapper.toEntity(rol)
 
+            existing = session.query(RolEntity).filter(
+                RolEntity.rol == entity.rol
+            ).first()
+            if existing:
+                self.log.warning("save - El rol ya existe: ", body=rol.rol)
+                return None
+
+            session.add(entity)
+            session.commit()
+            return RolMapper.toDTO(entity)
         except Exception as ex:
-            db.rollback()
-            self.log.error(f"save - Error al crear rol: {str(ex)}")
-            return False
-
-        finally:
-            cur.close()
-
-    def insertRol(self, rol : rolDTO) -> rolDTO | None:
-        sqlCommand = None
-        try:
-            db = self._getConnection()
-            sqlCommand = db.cursor()
-
-            sqlCommand.execute("SELECT * FROM rol WHERE rol = %s", (rol['rol'],))
-            if sqlCommand.fetchone():
-                self.log.warning("insertRol - El rol ya existe: ", body=rol)
-                return False
-            
-            sqlCommand.execute("INSERT INTO rol (rol) VALUES (%s)", (rol['rol'],))
-            db.commit()
-            return True
-
-        except Exception as ex:
-            try:
-                db.rollback()
-            except:
-                pass
-            self.log.error(f"insertRol - Error al crear rol: {str(ex)}")
-            return False
-
-        finally:
-            if sqlCommand:
-                sqlCommand.close()
-                
-    def existById(self, rol : str) -> bool:
-        sqlCommand = None
-        try:
-            db = self._getConnection()
-            sqlCommand = db.cursor()
-            sqlCommand.execute("SELECT * FROM rol WHERE rol = %s", (rol,))
-            return sqlCommand.fetchone()
-        
-        except Exception as ex:
-            self.log.error(f"findByName - Error al buscar rol: {str(ex)}")
+            session.rollback()
+            self.log.error(f"save - Error guardando rol: {str(ex)}")
             return None
-        
         finally:
-            if sqlCommand:
-                sqlCommand.close()
+            session.close()
 
-    def updateRol(self, rolActual, rolNuevo : rolDTO) -> rolDTO | None:
-        sqlCommand = None
+    def findByName(self, rol: str) -> rolDTO | None:
+        session = SessionLocal()
         try:
-            db = self._getConnection()
-            sqlCommand = db.cursor()
+            entity = session.query(RolEntity).filter(RolEntity.rol == rol).first()
+            return RolMapper.toDTO(entity)
+        except Exception as ex:
+            self.log.error(f"findByName - Error: {str(ex)}")
+            return None
+        finally:
+            session.close()
 
-            sqlCommand.execute("SELECT * FROM rol WHERE rol = %s", (rolActual,))
-            if not sqlCommand.fetchone():
-                self.log.warning(f"updateRol - El rol '{rolActual}' no existe")
+    def getAll(self) -> list[rolDTO]:
+        session = SessionLocal()
+        try:
+            entities = session.query(RolEntity).all()
+            return RolMapper.toListDTO(entities)
+        except Exception as ex:
+            self.log.error(f"getAll - Error: {str(ex)}")
+            return []
+        finally:
+            session.close()
+
+    def update(self, rolActual: str, rolNuevo: rolDTO) -> bool:
+        session = SessionLocal()
+        try:
+            entity = session.query(RolEntity).filter(
+                RolEntity.rol == rolActual
+            ).first()
+            if not entity:
                 return False
 
-            sqlCommand.execute("SELECT * FROM rol WHERE rol = %s", (rolNuevo,))
-            if sqlCommand.fetchone():
-                self.log.warning(f"updateRol - El rol '{rolNuevo}' ya existe")
-                return False
+            if rolNuevo.rol and rolNuevo.rol != rolActual:
+                duplicate = session.query(RolEntity).filter(
+                    RolEntity.rol == rolNuevo.rol
+                ).first()
+                if duplicate:
+                    return False
+                entity.rol = rolNuevo.rol
 
-            sqlCommand.execute("UPDATE rol SET rol = %s WHERE rol = %s", (rolNuevo, rolActual))
-            db.commit()
+            session.commit()
             return True
-        
         except Exception as ex:
-            try:
-                db.rollback()
-            except:
-                pass
-            self.log.error(f"updateRol - Error al actualizar rol: {str(ex)}")
+            session.rollback()
+            self.log.error(f"update - Error: {str(ex)}")
             return False
-        
         finally:
-            if sqlCommand:
-                sqlCommand.close()
+            session.close()
 
-    def delete(self, rol : rolDTO) -> rolDTO | None:
-        sqlCommand = None
+    def delete(self, rol: str) -> DeleteResult:
+        session = SessionLocal()
         try:
-            db = self._getConnection()
-            sqlCommand = db.cursor()
-            sqlCommand.execute("DELETE FROM rol WHERE rol = %s", (rol,))
-            db.commit()
-            return sqlCommand.rowcount > 0
-        
+            entity = session.query(RolEntity).filter(RolEntity.rol == rol).first()
+            if not entity:
+                return DeleteResult.NOT_FOUND
+
+            session.delete(entity)
+            session.commit()
+            return DeleteResult.OK
+
+        except IntegrityError as ex:
+            session.rollback()
+            # 23503 = foreign_key_violation
+            if getattr(getattr(ex, 'orig', None), 'pgcode', None) == '23503':
+                self.log.warning(
+                    f"delete - El rol '{rol}' está asignado a usuarios, no se puede eliminar"
+                )
+                return DeleteResult.IN_USE
+            self.log.error(f"delete - IntegrityError: {str(ex)}")
+            return DeleteResult.ERROR
+
         except Exception as ex:
-            try:
-                db.rollback()
-            except:
-                pass
-            self.log.error(f"delete - Error al eliminar rol: {str(ex)}")
-            return False
-        
+            session.rollback()
+            self.log.error(f"delete - Error: {str(ex)}")
+            return DeleteResult.ERROR
         finally:
-            if sqlCommand:
-                sqlCommand.close()
+            session.close()

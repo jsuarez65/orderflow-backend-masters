@@ -1,97 +1,87 @@
-from configuration.DatabaseConfiguration import DatabaseConfiguration
+from configuration.DatabaseConfiguration import SessionLocal
 from configuration.LogConfiguration import LogConfiguration
+from model.entities.PermissionEntity import PermissionEntity
 from model.dto import permissionDTO
+from mappers.PermissionMappers import PermissionMapper
+
 
 class PermissionRepository:
 
-    def __init__(self):
-        self.log = LogConfiguration.getLogger()
+    def __init__(self, log=None, session=None):
+        self.log = log or LogConfiguration.getLogger()
 
-    def _getConnection(self):
-        return DatabaseConfiguration.getConnection()
-
-    def save(self, permiso : permissionDTO) -> permissionDTO | None:
-        db = self._getConnection()
-        cur = db.cursor()
+    def save(self, permission: permissionDTO) -> permissionDTO | None:
+        session = SessionLocal()
         try:
-            
-            cur.execute("SELECT 1 FROM permisos WHERE nombre = %s", (permiso.nombre,))
-            if cur.fetchone():
-                self.log.warning("save - El permiso ya existe: ", body=permiso)
-                return False
-            
-            cur.execute("INSERT INTO permisos (nombre, descripcion) VALUES (%s, %s)", 
-                        (permiso.nombre, permiso.descripcion))
-            db.commit()
-            return True
-
+            entity = PermissionMapper.toEntity(permission)
+            session.merge(entity)
+            session.commit()
+            return PermissionMapper.toDTO(entity)
         except Exception as ex:
-            db.rollback()
-            self.log.error(f"save - Error al crear permiso: {str(ex)}")
-            return False
-
-        finally:
-            cur.close()
-                
-    def ExistById(self, nombre : str) -> bool:
-        db = self._getConnection()
-        cur = db.cursor()
-        try:
-            cur.execute("SELECT * FROM permisos WHERE nombre = %s", (nombre,))
-            return cur.fetchone()
-        
-        except Exception as ex:
-            self.log.error(f"findByName - Error al buscar permiso: {str(ex)}")
+            session.rollback()
+            self.log.error(f"save - Error guardando permiso: {str(ex)}")
             return None
-        
         finally:
-            cur.close()
+            session.close()
 
-    def update(self, nombreActual, permisoData : permissionDTO) -> permissionDTO | None:
-        db = self._getConnection()
-        cur = db.cursor()
+    def findByName(self, name: str) -> permissionDTO | None:
+        session = SessionLocal()
         try:
-            cur.execute("SELECT 1 FROM permisos WHERE nombre = %s", (nombreActual,))
-            if not cur.fetchone():
-                self.log.warning(f"update - El permiso '{nombreActual}' no existe")
+            entity = session.query(PermissionEntity).filter(
+                PermissionEntity.nombre == name
+            ).first()
+            return PermissionMapper.toDTO(entity)
+        except Exception as ex:
+            self.log.error(f"findByName - Error: {str(ex)}")
+            return None
+        finally:
+            session.close()
+
+    def getAllPermissions(self) -> list[permissionDTO]:
+        session = SessionLocal()
+        try:
+            entities = session.query(PermissionEntity).all()
+            return PermissionMapper.toListDTO(entities)
+        except Exception as ex:
+            self.log.error(f"getAllPermissions - Error: {str(ex)}")
+            return []
+        finally:
+            session.close()
+
+    def update(self, nombreActual: str, permission: permissionDTO) -> bool:
+        session = SessionLocal()
+        try:
+            entity = session.query(PermissionEntity).filter(
+                PermissionEntity.nombre == nombreActual
+            ).first()
+            if not entity:
                 return False
-
-            if nombreActual != permisoData.nombre:
-                cur.execute("SELECT 1 FROM permisos WHERE nombre = %s", (permisoData.nombre,))
-                if cur.fetchone():
-                    self.log.warning(f"update - El permiso '{permisoData.nombre}' ya existe")
-                    return False
-
-            cur.execute("""
-                UPDATE permisos 
-                SET nombre = %s, descripcion = %s 
-                WHERE nombre = %s
-            """, (permisoData.nombre, permisoData.descripcion, nombreActual))
-            
-            db.commit()
+            entity.descripcion = permission.descripcion
+            if permission.nombre and permission.nombre != nombreActual:
+                entity.nombre = permission.nombre
+            session.commit()
             return True
-        
         except Exception as ex:
-            db.rollback()
-            self.log.error(f"update - Error al actualizar permiso: {str(ex)}")
+            session.rollback()
+            self.log.error(f"update - Error: {str(ex)}")
             return False
-        
         finally:
-            cur.close()
+            session.close()
 
-    def delete(self, nombre):
-        db = self._getConnection()
-        cur = db.cursor()
+    def deletePermission(self, name: str) -> bool:
+        session = SessionLocal()
         try:
-            cur.execute("DELETE FROM permisos WHERE nombre = %s", (nombre,))
-            db.commit()
-            return cur.rowcount > 0
-        
-        except Exception as ex:
-            db.rollback()
-            self.log.error(f"delete - Error al eliminar permiso: {str(ex)}")
+            entity = session.query(PermissionEntity).filter(
+                PermissionEntity.nombre == name
+            ).first()
+            if entity:
+                session.delete(entity)
+                session.commit()
+                return True
             return False
-        
+        except Exception as ex:
+            session.rollback()
+            self.log.error(f"deletePermission - Error: {str(ex)}")
+            return False
         finally:
-            cur.close()
-            
+            session.close()

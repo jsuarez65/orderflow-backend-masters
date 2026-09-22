@@ -4,8 +4,9 @@ from configuration.DatabaseConfiguration import Base
 
 #Base = declarative_base()
 
-class PermissionEntity(Base):
-    __tablename__ = 'permisos'
+class UserEntity(Base):
+    __tablename__ = 'usuarios'
 
-    nombre = Column(String(100), primary_key=True)
-    descripcion = Column(String(200))
+    username = Column(String(100), primary_key=True)
+    password = Column(String(100))
+    rol = Column(String(100))

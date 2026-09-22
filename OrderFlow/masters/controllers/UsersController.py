@@ -1,99 +1,75 @@
-        
 from flask import Blueprint, request
 from services.UsersService import UsersService
 from configuration.LogConfiguration import LogConfiguration
-from model.dto.userDTO import userDTO
+from model.dto import userDTO
 
 usersBlueprint = Blueprint('users', __name__, url_prefix='/users')
-
 usersService = UsersService()
-log = LogConfiguration.getLogger()
 
 
 @usersBlueprint.route('/', methods=['POST'])
 def createUser():
-    
-    userData = request.get_json()
-    
-    log.info(f"createUser - Ingresa con usuario: {userData['username']}", body=userData)
+    log = LogConfiguration.getLogger()
+    body = request.get_json()
 
-    
-    isUserDataIncomplete = (
-        not userData
-        or 'username' not in userData
-        or 'password' not in userData
-        or 'rol' not in userData
-    )
-    if isUserDataIncomplete:
+    if (not body or 'username' not in body
+            or 'password' not in body or 'rol' not in body):
         return {"message": "Los campos 'username', 'password' y 'rol' son obligatorios"}, 400
 
-    if usersService.createUser(userData):
+    log.info(f"createUser - Ingresa con usuario: {body['username']}", body=body)
+
+    user = userDTO(
+        username=body['username'],
+        password=body['password'],
+        rol=body['rol']
+    )
+
+    if usersService.createUser(user):
         return {"message": "El usuario se ingresó correctamente"}, 201
-    else:
-        return {"message": "Error al ingresar el usuario o ya existe"}, 500
+    return {"message": "Error al ingresar el usuario o ya existe"}, 500
 
 
 @usersBlueprint.route('/<name>', methods=['GET'])
-def getUser(name) -> list[userDTO]:
-    """
-        permite recuperar un usuario registrado en la base de datos por su nombre de usuario.
-    ---
-        responses:
-            200:
-                description: Usuario encontrado.
-                schema:
-                    $ref: '#/definitions/userDTO'
-        definitions:
-            userDTO:
-                type: object
-                properties:
-                    username:
-                        type: string
-                    password:
-                        type: string
-                    rol:
-                        type: string
-    """
-
-    log.info(f"getUser - Ingresa a obtener el usuario: {name}")
-
+def getUser(name):
+    log = LogConfiguration.getLogger()
+    log.info("getUser - Ingresa a obtener el usuario: ", body=name)
     if not name:
         return {"message": "El parámetro 'nombre' es obligatorio"}, 400
 
     user = usersService.getUser(name)
-
-    if user:
-        return {"message": "Usuario encontrado", "user": user}, 200
-    else:
-        return {"message": "Usuario no encontrado"}, 404
+    if user is not None:
+        return {
+            "message": "Usuario encontrado",
+            "user": {"username": user.username, "rol": user.rol}
+        }, 200
+    return {"message": "Usuario no encontrado"}, 404
 
 
 @usersBlueprint.route('/', methods=['PUT'])
 def updateUser():
-    
-    userData = request.get_json()
+    log = LogConfiguration.getLogger()
+    body = request.get_json()
+    if (not body or 'currentUsername' not in body
+            or 'username' not in body
+            or 'password' not in body
+            or 'rol' not in body):
+        return {"message": "Los campos 'currentUsername', 'username', 'password' y 'rol' son obligatorios"}, 400
 
-    isUserDataIncomplete = (
-        not userData
-        or 'currentUsername' not in userData
-        or 'username' not in userData
-        or 'password' not in userData
-        or 'rol' not in userData
+    user = userDTO(
+        username=body['username'],
+        password=body['password'],
+        rol=body['rol']
     )
-    if isUserDataIncomplete:
-        return {"message": "Los campos 'currentUsername', 'username', 'password' y 'rol' son obligatorios en el body"}, 400
 
-    if usersService.updateUser(userData['currentUsername'], userData):
-        return {"message": f"El usuario '{userData['currentUsername']}' se actualizó correctamente"}, 200
-    else:
-        return {"message": "Error al actualizar el usuario (no existe o el nuevo username ya está en uso)"}, 500
+    if usersService.updateUser(body['currentUsername'], user):
+        return {"message": f"El usuario '{body['currentUsername']}' se actualizó correctamente"}, 200
+    return {"message": "Error al actualizar el usuario"}, 500
 
 
 @usersBlueprint.route('/<name>', methods=['DELETE'])
 def deleteUser(name):
-    
+    log = LogConfiguration.getLogger()
+    log.info("deleteUser - Ingresa a eliminar el usuario: ", body=name)
     if usersService.deleteUser(name):
         return {"message": f"El usuario '{name}' se eliminó correctamente"}, 200
-    else:
-        return {"message": f"Error al eliminar el usuario '{name}' o no existe"}, 404
-
+    return {"message": f"Error al eliminar el usuario '{name}' o no existe"}, 404

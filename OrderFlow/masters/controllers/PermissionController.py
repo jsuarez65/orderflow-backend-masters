@@ -1,99 +1,74 @@
 from flask import Blueprint, request
 from services.PermissionService import PermissionService
 from configuration.LogConfiguration import LogConfiguration
-from model.dto.permissionDTO import permissionDTO
+from model.dto import permissionDTO
 
 PermissionBlueprint = Blueprint('permisos', __name__, url_prefix='/permisos')
-
 permissionService = PermissionService()
-log = LogConfiguration.getLogger()
+
 
 @PermissionBlueprint.route('/', methods=['POST'])
 def createPermission():
-    
     log = LogConfiguration.getLogger()
-    
-    permission = request.get_json()
+    body = request.get_json()
 
-    log.info(f"createPermission - Ingresa con permiso: {permission}")
+    if not body or 'nombre' not in body:
+        return {"message": "El campo 'nombre' es obligatorio"}, 400
 
-    if not permission or 'nombre' not in permission or 'descripcion' not in permission:
-        return {"message": "Los campos 'nombre' y 'descripcion' son obligatorios"}, 400
+    log.info("createPermission - Ingresa con permiso: ", body=body)
 
-    if (permissionService.createPermission(permission) == True):
+    permiso = permissionDTO(
+        nombre=body['nombre'],
+        descripcion=body.get('descripcion')
+    )
+
+    if permissionService.createPermission(permiso):
         return {"message": "El permiso se ingresó correctamente"}, 200
-    else:
-        return {"message": "Error al ingresar el permiso"}, 500
+    return {"message": "Error al ingresar el permiso"}, 500
 
 
-
-@PermissionBlueprint.route('/', methods=['GET'])
-def getPermission() -> list[permissionDTO]:
-    
-    """ 
-    Permite recuperar todos los permisos registrados en la base de datos.
-    ---
-        responses:
-            200:
-                description: Lista de permisosDTO.
-                schema:
-                    type: array
-                    items:
-                        $ref: '#/definitions/permisosDTO'
-        definitions:
-            permissionDTO:
-                type: object
-                properties:
-                    nombre:
-                        type: string
-                    descripcion:
-                        type: string
-
-    """
-
+@PermissionBlueprint.route('', methods=['GET'])
+def getPermission():
     log = LogConfiguration.getLogger()
+    nombre = request.args.get('nombre')
+    if not nombre:
+        return {"message": "El parámetro 'nombre' es obligatorio"}, 400
 
-    log.info(f"getPermission - Ingresa a obtener el permiso: {request.args}")
+    log.info(f"getPermission - Ingresa a obtener el permiso: {nombre}")
+    permission = permissionService.getPermission(nombre)
+    if permission is not None:
+        return {"nombre": permission.nombre, "descripcion": permission.descripcion}, 200
+    return {"message": f"El permiso '{nombre}' no existe"}, 404
 
-    permissionFound = permissionService.getPermission(request.args.get('nombre'))
 
-    if permissionFound:
-        return permissionFound, 200
-    else:
-        return {"message": "Permiso no encontrado"}, 404
-    
-    
-@PermissionBlueprint.route('/<nombre>', methods=['DELETE'])
-def deletePermission(nombre):
-    
+@PermissionBlueprint.route('/', methods=['DELETE'])
+def deletePermission():
     log = LogConfiguration.getLogger()
-    
-    log.info(f"deletePermission - Ingresa a eliminar el permiso: {nombre}")
-    
-    if (permissionService.deletePermission(nombre) == True):
-        return {"message": f"El permiso '{nombre}' se eliminó correctamente"}, 200
-    else:
-        return {"message": "Error al eliminar el permiso o el permiso no existe"}, 500
-    
-    
+    name = request.args.get('name')
+    if not name:
+        return {"message": "El parámetro 'name' es obligatorio"}, 400
+
+    log.info(f"deletePermission - Ingresa a eliminar el permiso: {name}")
+    if permissionService.deletePermission(name):
+        return {"message": f"El permiso '{name}' se eliminó correctamente"}, 200
+    return {"message": "Error al eliminar el permiso o el permiso no existe"}, 500
+
+
 @PermissionBlueprint.route('/', methods=['PUT'])
 def updatePermission():
     log = LogConfiguration.getLogger()
-    
-    permission = request.get_json()
-    
-    log.info(f"updatePermission - Ingresa a actualizar el permiso: {permission}")
+    body = request.get_json()
+    if not body or 'nombre' not in body:
+        return {"message": "El campo 'nombre' es obligatorio"}, 400
 
-    if (
-        not permission
-        or 'nombreActual' not in permission
-        or 'nombre' not in permission
-        or 'descripcion' not in permission
-    ):
-        return {"message": "Los campos 'nombreActual', 'nombre' y 'descripcion' son obligatorios"}, 400
+    nombreActual = request.args.get('nombreActual', body['nombre'])
+    log.info(f"updatePermission - Ingresa a actualizar el permiso: {nombreActual}")
 
-    if permissionService.updatePermission(permission['nombreActual'], permission):
+    permiso = permissionDTO(
+        nombre=body['nombre'],
+        descripcion=body.get('descripcion')
+    )
+
+    if permissionService.updatePermission(nombreActual, permiso):
         return {"message": "El permiso se actualizó correctamente"}, 200
-    else:
-        return {"message": "Error al actualizar el permiso"}, 500
-    
+    return {"message": "Error al actualizar el permiso"}, 500

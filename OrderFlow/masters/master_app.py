@@ -7,8 +7,8 @@ from controllers.ProviderController import ProviderBlueprint
 from controllers.PermissionController import PermissionBlueprint
 from controllers.RolController import roleBlueprint
 from controllers.UsersController import usersBlueprint
-from controllers.RolController import roleBlueprint
-from controllers.UsersController import usersBlueprint
+
+
 
 masterMain = Flask(__name__)
 
