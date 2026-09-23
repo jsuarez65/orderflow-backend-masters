@@ -22,3 +22,7 @@ class CityService:
 
         result = self.cityRepository.importZipCodes(file)
         return result
+    
+    def getPostalCodes(self, postal_code: str = None, city_name: str = None):
+        self.log.info("getPostalCodes - Retrieving postal codes")
+        return cityRepository.getPostalCodes(postal_code, city_name)

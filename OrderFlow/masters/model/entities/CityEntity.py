@@ -11,4 +11,3 @@ class CityEntity(Base):
     id = Column(Integer, primary_key=True)
     codigo_postal = Column(String(10), nullable=False)
     nombre_localidad = Column(String(50), nullable=False)
-    

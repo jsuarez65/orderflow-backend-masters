@@ -21,3 +21,15 @@ def importZipCodes():
         return result, 200
     else:
         return {"message": "Error importing zip codes"}, 400
+    
+@CitiesBlueprint.route('', methods=['GET'])
+def getPostalCodes():
+    log = LogConfiguration.getLogger()
+    log.info("getPostalCodes - Entering postal codes retrieval")
+
+    postal_code = request.args.get('postal_code')
+    city_name = request.args.get('city_name')
+
+    result = cityService.getPostalCodes(postal_code, city_name)
+    
+    return result, 200

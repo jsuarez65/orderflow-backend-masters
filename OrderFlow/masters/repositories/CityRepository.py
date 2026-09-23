@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 
 from configuration.DatabaseConfiguration import sessionLocal
 from configuration.LogConfiguration import LogConfiguration
-from entities.CityEntity import CityEntity
+from model.entities.CityEntity import CityEntity
 
 class CityRepository:
     def __init__(self):
@@ -64,3 +64,23 @@ class CityRepository:
             }
         finally:
             self.session.close()
+    
+    def getPostalCodes(self, postal_code: str = None, city_name: str = None):
+        query = self.session.query(CityEntity)
+
+        if postal_code:
+            query = query.filter(CityEntity.codigo_postal == postal_code.strip())
+        
+        if city_name:
+            query = query.filter(CityEntity.nombre_localidad.ilike(f"%{city_name.strip()}%"))
+
+        cities = query.all()
+
+        return [
+            {
+                "id": city.id,
+                "postal_code": city.codigo_postal,
+                "city_name": city.nombre_localidad
+            }
+            for city in cities
+        ]
