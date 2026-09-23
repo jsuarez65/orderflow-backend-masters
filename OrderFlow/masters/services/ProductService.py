@@ -1,5 +1,5 @@
 
-from OrderFlow.masters.model.mappers.ProductMapper import ProductMapper
+from OrderFlow.masters.mappers.ProductMapper import ProductMapper
 from model.dtos import ProductDTO
 from repositories.ProductRepository import ProductRepository
 
