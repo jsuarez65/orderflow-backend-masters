@@ -1,0 +1,423 @@
+{
+  "info": {
+    "_postman_id": "03c83edc-c851-4db9-9803-0268f3aa7092",
+    "name": "OrderFlow - Masters",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54241545",
+    "_collection_link": "https://go.postman.co/collection/54241545-03c83edc-c851-4db9-9803-0268f3aa7092?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "products",
+      "item": [
+        {
+          "name": "product",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"codigo_interno\": \"CI-06425\",\r\n  \"sku\": \"SKU-563-X\",\r\n  \"codigo_barras\": \"21874684362 \",\r\n  \"descripcion\": \"Botella\",\r\n  \"peso\": \"0.50\",\r\n  \"dimensiones\": \"25\",\r\n  \"stock_minimo\": \"10\",\r\n  \"stock_maximo\": \"500\",\r\n  \"punto_reorden\":\"100\",\r\n  \"medida_unidad\":\"cm\",\r\n  \"producto_categoria_id\": \"7\",\r\n  \"proveedores_cuit\": \"30-265896332-3\"\r\n\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http//localhost:5500/master/product",
+              "host": [
+                "http"
+              ],
+              "path": [
+                "",
+                "localhost:5500",
+                "master",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "POST /roles",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"rol\": \"Manager\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/rols",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "rols"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET /roles",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/rols/admin",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "rols",
+            "admin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PUT /roles",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"rol\": \"gerente\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/roles/ge",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "roles",
+            "ge"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE /roles",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/rols/admin",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "rols",
+            "admin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST /permisos",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"nombre\": \"Fasto\",\r\n    \"descripcion\": \"Manager\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/permisos",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "permisos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PUT /permisos",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n \"nombre\":\"crear_usuario\"   \r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/permisos/crear_usuario",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "permisos",
+            "crear_usuario"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE /permisos",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/permisos/crear_usuario",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "permisos",
+            "crear_usuario"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET /permisos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:5000/permisos?nombre=juan",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "permisos"
+          ],
+          "query": [
+            {
+              "key": "nombre",
+              "value": "juan"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST /users",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"juan\",\r\n  \"password\": \"1234\",\r\n  \"rol\": \"admin\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/users/",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "users",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET /users",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/users/Jorge",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "users",
+            "Jorge"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PUT /users",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"Jorge\",\r\n    \"password\": \"admin123\",\r\n    \"rol\": \"admin\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/users/Carlos",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "users",
+            "Carlos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE /users",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/users",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "5000",
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
