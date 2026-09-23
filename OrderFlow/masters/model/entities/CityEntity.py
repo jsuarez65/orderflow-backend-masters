@@ -9,11 +9,6 @@ class CityEntity(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True)
-    nombre = Column(String(50), nullable=False)
-    provinciaId = Column(
-        Integer,
-        ForeignKey("provincias.id"),
-        nullable=False
-    )
-
-    #provincia = relationship("ProvinceEntity")
+    codigo_postal = Column(String(10), nullable=False)
+    nombre_localidad = Column(String(50), nullable=False)
+    
