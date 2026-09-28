@@ -18,7 +18,8 @@ class ProviderMapper:
             email=entity.email,
             phone=entity.telefono,
             postalCode=entity.localidadCodigoPostal,
-            stateName=entity.provinciaNombre
+            stateName=entity.provinciaNombre,
+            city=entity.ciudad
         )
     @staticmethod
     def toEntity(dto: ProviderDTO) -> ProviderEntity:
@@ -33,7 +34,8 @@ class ProviderMapper:
             email=dto.email,
             telefono=dto.phone,
             localidadCodigoPostal=dto.postalCode,
-            provinciaNombre=dto.stateName
+            provinciaNombre=dto.stateName,
+            ciudad=dto.city
         )
 
     @staticmethod

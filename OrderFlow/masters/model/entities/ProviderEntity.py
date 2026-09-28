@@ -13,7 +13,9 @@ class ProviderEntity(Base):
     telefono = Column(String(50), nullable=True)
     localidadCodigoPostal = Column(String(50), ForeignKey("localidades.codigo_postal"), nullable=True)
     provinciaNombre = Column(String(50), ForeignKey("provincias.nombre"), nullable=True)
+    ciudad = Column(String(50), nullable=True)
 
     localidad = relationship("LocalityEntity")
     provincia = relationship("ProvinceEntity")
+    ciudad = relationship("CityEntity")
     

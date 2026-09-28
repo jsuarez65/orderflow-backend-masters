@@ -71,6 +71,7 @@ class ProviderRepository:
         entityToUpdate.telefono = entity.phone
         entityToUpdate.localidadCodigoPostal = entity.postalCode
         entityToUpdate.provinciaNombre = entity.stateName
+        entityToUpdate.ciudad = entity.city
 
         self.session.commit()
 

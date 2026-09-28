@@ -38,6 +38,8 @@ def getAll() -> tuple[list[dict], int]:
             type: string
           state_name:
             type: string
+          city:
+            type: string
 
     """
 

@@ -11,4 +11,5 @@ class ProviderDTO:
     email: Optional[str]=None 
     phone: Optional[str]=None 
     postalCode: Optional[str]=None 
-    stateName: Optional[str]=None 
+    stateName: Optional[str]=None
+    city: Optional[str]=None 
