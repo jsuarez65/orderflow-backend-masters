@@ -6,6 +6,7 @@ from configuration.DatabaseConfiguration import Base
 class ProductEntity(Base):
 
     __tablename__ = 'productos'
+    __table_args__ = {'extend_existing': True}
 
     codigoInterno = Column(String(50), primary_key=True)
     sku = Column(String(50), nullable=False)
@@ -31,4 +32,4 @@ class ProductEntity(Base):
     )
 
     productoCategoria = relationship("ProductCategoryEntity")
-    proveedor = relationship("ProviderEntity")
+    #relationshipproveedor = relationship("ProviderEntity")
