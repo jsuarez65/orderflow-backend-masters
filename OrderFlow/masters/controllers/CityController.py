@@ -1,10 +1,10 @@
 from flask import Blueprint, request
-from OrderFlow.masters.services.CityService import CitiesService
+from services.CityService import CityService
 from configuration.LogConfiguration import LogConfiguration
 
 CitiesBlueprint = Blueprint('cities', __name__, url_prefix='/master/cities')
 
-citiesService = CitiesService()
+cityService = CityService()
 
 @CitiesBlueprint.route('', methods=['POST'])
 def importZipCodes():
@@ -13,7 +13,7 @@ def importZipCodes():
     
     log.info("importZipCodes - Entering zip codes import")
 
-    cityService = CitiesService()
+    cityService = CityService()
 
     result = cityService.importZipCodes(request)
     
