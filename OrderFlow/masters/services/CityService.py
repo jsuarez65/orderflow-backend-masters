@@ -1,28 +1,20 @@
 from repositories.CityRepository import CityRepository
-from configuration.LogConfiguration import LogConfiguration
-
 
 class CityService:
-
-    def __init__(self):
-        self.log = LogConfiguration.getLogger()
-        self.cityRepository = CityRepository()
+    def __init__(self, log, session):
+        self.log = log
+        self.session = session
+        self.cityRepository = CityRepository(log, session)
     
     def importZipCodes(self, request):
-        self.log.info("importZipCodes - Entering zip codes import process")
-
         if 'file' not in request.files:
-            self.log.warning("importZipCodes - No file sent in request")
             return None
         
         file = request.files['file']
         if file.filename == '':
-            self.log.warning("importZipCodes - Empty filename")
             return None
 
-        result = self.cityRepository.importZipCodes(file)
-        return result
+        return self.cityRepository.importZipCodes(file)
     
-    def getPostalCodes(self, postal_code: str = None, city_name: str = None):
-        self.log.info("getPostalCodes - Retrieving postal codes")
-        return self.cityRepository.getPostalCodes(postal_code, city_name)
+    def getPostalCodes(self, postalCode: str = None, cityName: str = None):
+        return self.cityRepository.getPostalCodes(postalCode, cityName)
