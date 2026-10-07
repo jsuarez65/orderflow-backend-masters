@@ -11,11 +11,10 @@ class ProviderEntity(Base):
     domicilio = Column(String(50), nullable=True)
     email = Column(String(50), nullable=True)
     telefono = Column(String(50), nullable=True)
-    localidadCodigoPostal = Column(String(50), ForeignKey("localidades.codigo_postal"), nullable=True)
+    localidadId = Column(String(50), ForeignKey("localidades.id"), nullable=True)
     provinciaNombre = Column(String(50), ForeignKey("provincias.nombre"), nullable=True)
-    ciudad = Column(String(50), nullable=True)
 
     localidad = relationship("LocalityEntity")
     provincia = relationship("ProvinceEntity")
-    ciudad = relationship("CityEntity")
+
     

@@ -14,6 +14,7 @@ class ProviderRepository:
 
         try:
             return self.session.query(ProviderEntity).all()
+        
         except Exception as ex:
             self.log.error(f"findAll - Error al obtener todos los proveedores: {str(ex)}")
             return []
