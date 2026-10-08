@@ -1,8 +1,14 @@
 from dataclasses import dataclass
-from decimal import Decimal
 from typing import Optional
 
 @dataclass
-class rolDTO:
+class RolDTO:
     rol: Optional[str] = None
+    
+    def validate(self) -> bool:
+        if not self.rol or not self.rol.strip():
+            return False
+        return True
+    
+    
     

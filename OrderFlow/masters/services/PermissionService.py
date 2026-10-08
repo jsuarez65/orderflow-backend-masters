@@ -1,26 +1,34 @@
 from repositories.PermissionRepository import PermissionRepository
 from configuration.LogConfiguration import LogConfiguration
-from model.dto import permissionDTO
+from model.dto.permissionDTO import PermissionDTO
 
 
 class PermissionService:
 
-    def __init__(self, log=None, session=None):
+    def __init__(self, log=None,):
         self.log = log or LogConfiguration.getLogger()
-        self.permissionRepository = PermissionRepository(self.log, session)
+        self.permissionRepository = PermissionRepository(self.log)
 
-    def createPermission(self, permiso: permissionDTO) -> bool:
-        self.log.info("createPermission - Ingresa con permission: ", body=permiso)
-        return self.permissionRepository.save(permiso) is not None
+    def createPermission(self, permission: PermissionDTO) -> tuple[PermissionDTO | None, str | None]:
+        if permission is None:
+            return None, "DTO nulo recibido."
+        self.log.info(f"createPermission - Ingresa con permission: {permission.nombre}")
+        return self.permissionRepository.save(permission)
 
-    def getPermission(self, nombre: str) -> permissionDTO | None:
-        self.log.info("getPermission - Ingresa con nombre: ", body=nombre)
+    def getPermission(self, nombre: str) -> tuple[PermissionDTO | None, str | None]:
+        self.log.info(f"getPermission - Ingresa con nombre: {nombre}")
         return self.permissionRepository.findByName(nombre)
 
-    def updatePermission(self, nombreActual: str, permisoData: permissionDTO) -> bool:
-        self.log.info(f"updatePermission - Actualizar permiso '{nombreActual}'")
-        return self.permissionRepository.update(nombreActual, permisoData)
+    def getAllPermissions(self) -> tuple[list[PermissionDTO], str | None]:
+        self.log.info("getAllPermissions - Obteniendo todos los permisos")
+        return self.permissionRepository.getAllPermissions()
 
-    def deletePermission(self, nombre: str) -> bool:
-        self.log.info("deletePermission - Eliminar permiso: ", body=nombre)
-        return self.permissionRepository.deletePermission(nombre)
+    def updatePermission(self, nombreActual: str, permission: PermissionDTO) -> tuple[PermissionDTO | None, str | None]:
+        if permission is None:
+            return None, "DTO nulo recibido."
+        self.log.info(f"updatePermission - Actualizar permiso '{nombreActual}'")
+        return self.permissionRepository.update(nombreActual, permission)
+
+    def deletePermission(self, nombre: str) -> tuple[PermissionDTO | None, str | None]:
+        self.log.info(f"deletePermission - Eliminar permiso: {nombre}")
+        return self.permissionRepository.delete(nombre)

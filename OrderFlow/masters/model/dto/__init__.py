@@ -1,6 +1,6 @@
-from .permissionDTO import permissionDTO
-from .userDTO import userDTO
-from .rolDTO import rolDTO
+from .permissionDTO import PermissionDTO
+from .userDTO import UserDTO
+from .rolDTO import RolDTO
 
 
-__all__ = ["permissionDTO", "userDTO", "rolDTO"]
+__all__ = ["PermissionDTO", "UserDTO", "RolDTO"]

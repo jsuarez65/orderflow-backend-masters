@@ -1,11 +1,10 @@
-from sqlalchemy import Column, String, Integer, Float, DateTime, Boolean
-#from sqlalchemy.ext.declarative import declarative_base # ORM
+from sqlalchemy import Column, String, Text
 from configuration.DatabaseConfiguration import Base
 
-#Base = declarative_base()
+
+from sqlalchemy import Column, String, Text
 
 class PermissionEntity(Base):
     __tablename__ = 'permisos'
-
-    nombre = Column(String(100), primary_key=True)
-    descripcion = Column(String(200))
+    nombre = Column(String(100), primary_key=True, nullable=False)
+    descripcion = Column(Text, nullable=False)

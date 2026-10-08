@@ -1,20 +1,20 @@
 from model.entities.RolEntity import RolEntity
-from model.dto.rolDTO import rolDTO
+from model.dto.rolDTO import RolDTO
 
 class RolMapper:
 
     @staticmethod
-    def toDTO(entity: RolEntity) -> rolDTO:
+    def toDTO(entity: RolEntity) -> RolDTO | None:
 
         if entity is None:
             return None
 
-        return rolDTO(
+        return RolDTO(
             rol=entity.rol
         )
 
     @staticmethod
-    def toEntity(dto: rolDTO) -> RolEntity:
+    def toEntity(dto: RolDTO) -> RolEntity | None:
 
         if dto is None:
             return None
@@ -24,7 +24,7 @@ class RolMapper:
         )
 
     @staticmethod
-    def toListDTO(roles: list[RolEntity]) -> list[rolDTO]:
+    def toListDTO(roles: list[RolEntity]) -> list[RolDTO]:
 
         if not roles:
             return []

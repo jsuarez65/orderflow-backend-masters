@@ -1,75 +1,115 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify, Response
 from services.UsersService import UsersService
+from model.dto.userDTO import UserDTO
 from configuration.LogConfiguration import LogConfiguration
-from model.dto import userDTO
+from configuration.DatabaseConfiguration import SessionLocal
 
-usersBlueprint = Blueprint('users', __name__, url_prefix='/users')
-usersService = UsersService()
-
-
-@usersBlueprint.route('/', methods=['POST'])
-def createUser():
-    log = LogConfiguration.getLogger()
-    body = request.get_json()
-
-    if (not body or 'username' not in body
-            or 'password' not in body or 'rol' not in body):
-        return {"message": "Los campos 'username', 'password' y 'rol' son obligatorios"}, 400
-
-    log.info(f"createUser - Ingresa con usuario: {body['username']}", body=body)
-
-    user = userDTO(
-        username=body['username'],
-        password=body['password'],
-        rol=body['rol']
-    )
-
-    if usersService.createUser(user):
-        return {"message": "El usuario se ingresó correctamente"}, 201
-    return {"message": "Error al ingresar el usuario o ya existe"}, 500
+userBp = Blueprint('userBp', __name__)
+log = LogConfiguration.getLogger()
 
 
-@usersBlueprint.route('/<name>', methods=['GET'])
-def getUser(name):
-    log = LogConfiguration.getLogger()
-    log.info("getUser - Ingresa a obtener el usuario: ", body=name)
-    if not name:
-        return {"message": "El parámetro 'nombre' es obligatorio"}, 400
+@userBp.route('/usuarios', methods=['POST'])
+def createUser() -> tuple[Response, int]:
+    data = request.get_json(silent=True) or {}
+    log.info(f"createUser - Creando usuario con datos: {data}")
 
-    user = usersService.getUser(name)
-    if user is not None:
-        return {
-            "message": "Usuario encontrado",
-            "user": {"username": user.username, "rol": user.rol}
-        }, 200
-    return {"message": "Usuario no encontrado"}, 404
+    try:
+        dto = UserDTO(**data)
+    except TypeError as e:
+        log.warning(f"createUser - Datos inválidos: {e}")
+        return jsonify({'error': f'Datos inválidos: {e}'}), 400
+    
+    session = SessionLocal()
+    if not dto.validate():
+        log.warning("createUser - Validación fallida.")
+        return jsonify({
+            'error': 'Todos los campos (username, password, rol) son obligatorios y el rol debe ser válido.'
+        }), 400
+
+    service = UsersService(log)
+    created, error, status = service.createUser(dto)
+
+    if error:
+        log.warning(f"createUser - {error}")
+        return jsonify({'error': error}), status
+
+    log.info(f"createUser - Usuario creado exitosamente: {created.username}")
+    return jsonify({
+        'message': f"Usuario '{created.username}' creado exitosamente.",
+        'usuario': {'username': created.username, 'rol': created.rol}
+    }), status
+    
+
+@userBp.route('/usuarios/<string:username>', methods=['GET'])
+def getUser(username: str) -> tuple[Response, int]:
+    log.info(f"getUser - Buscando usuario: {username}")
+    
+
+    service = UsersService(log)
+    dto, error, status = service.getUser(username)
+
+    if error:
+        return jsonify({'error': error}), status
+
+    return jsonify({'username': dto.username, 'rol': dto.rol}), status
 
 
-@usersBlueprint.route('/', methods=['PUT'])
-def updateUser():
-    log = LogConfiguration.getLogger()
-    body = request.get_json()
-    if (not body or 'currentUsername' not in body
-            or 'username' not in body
-            or 'password' not in body
-            or 'rol' not in body):
-        return {"message": "Los campos 'currentUsername', 'username', 'password' y 'rol' son obligatorios"}, 400
+@userBp.route('/usuarios', methods=['GET'])
+def getAllUsers() -> tuple[Response, int]:
+    log.info("getAllUsers - Obteniendo todos los usuarios")
 
-    user = userDTO(
-        username=body['username'],
-        password=body['password'],
-        rol=body['rol']
-    )
+    service = UsersService(log)
+    users, error, status = service.getAllUsers()
 
-    if usersService.updateUser(body['currentUsername'], user):
-        return {"message": f"El usuario '{body['currentUsername']}' se actualizó correctamente"}, 200
-    return {"message": "Error al actualizar el usuario"}, 500
+    if error:
+        return jsonify({'error': error}), status
+
+    log.info(f"getAllUsers - Total: {len(users)}")
+    return jsonify([{'username': u.username, 'rol': u.rol} for u in users]), status
 
 
-@usersBlueprint.route('/<name>', methods=['DELETE'])
-def deleteUser(name):
-    log = LogConfiguration.getLogger()
-    log.info("deleteUser - Ingresa a eliminar el usuario: ", body=name)
-    if usersService.deleteUser(name):
-        return {"message": f"El usuario '{name}' se eliminó correctamente"}, 200
-    return {"message": f"Error al eliminar el usuario '{name}' o no existe"}, 404
+@userBp.route('/usuarios/<string:username_actual>', methods=['PUT'])
+def updateUser(username_actual: str) -> tuple[Response, int]:
+    data = request.get_json(silent=True) or {}
+    log.info(f"updateUser - Actualizando usuario '{username_actual}' con datos: {data}")
+
+    try:
+        dto = UserDTO(**data)
+    except TypeError as e:
+        log.warning(f"updateUser - Datos inválidos: {e}")
+        return jsonify({'error': f'Datos inválidos: {e}'}), 400
+
+    if not dto.validate():
+        log.warning("updateUser - Validación fallida.")
+        return jsonify({'error': 'Todos los campos son obligatorios y el rol debe ser válido.'}), 400
+
+    service = UsersService(log)
+    updated, error, status = service.updateUser(username_actual, dto)   # ⬅️ tupla
+
+    if error:
+        log.warning(f"updateUser - {error}")
+        return jsonify({'error': error}), status
+
+    log.info(f"updateUser - Usuario '{username_actual}' actualizado a '{updated.username}'.")
+    return jsonify({
+        'message': f"Usuario '{username_actual}' actualizado exitosamente.",
+        'usuario': {'username': updated.username, 'rol': updated.rol}
+    }), status
+
+
+@userBp.route('/usuarios/<string:username>', methods=['DELETE'])
+def deleteUser(username: str) -> tuple[Response, int]:
+    log.info(f"deleteUser - Eliminando usuario: {username}")
+
+    service = UsersService(log)
+    deleted, error, status = service.deleteUser(username)
+
+    if error:
+        log.warning(f"deleteUser - {error}")
+        return jsonify({'error': error}), status
+
+    log.info(f"deleteUser - Usuario '{username}' eliminado exitosamente.")
+    return jsonify({
+        'message': f"Usuario '{username}' eliminado exitosamente.",
+        'usuario': {'username': deleted.username, 'rol': deleted.rol}
+    }), status

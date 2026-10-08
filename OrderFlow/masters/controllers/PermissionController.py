@@ -1,74 +1,95 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify, Response
 from services.PermissionService import PermissionService
+from model.dto.permissionDTO import PermissionDTO
 from configuration.LogConfiguration import LogConfiguration
-from model.dto import permissionDTO
 
-PermissionBlueprint = Blueprint('permisos', __name__, url_prefix='/permisos')
-permissionService = PermissionService()
-
-
-@PermissionBlueprint.route('/', methods=['POST'])
-def createPermission():
-    log = LogConfiguration.getLogger()
-    body = request.get_json()
-
-    if not body or 'nombre' not in body:
-        return {"message": "El campo 'nombre' es obligatorio"}, 400
-
-    log.info("createPermission - Ingresa con permiso: ", body=body)
-
-    permiso = permissionDTO(
-        nombre=body['nombre'],
-        descripcion=body.get('descripcion')
-    )
-
-    if permissionService.createPermission(permiso):
-        return {"message": "El permiso se ingresó correctamente"}, 200
-    return {"message": "Error al ingresar el permiso"}, 500
+permissionBp = Blueprint('permissionBp', __name__)
+log = LogConfiguration.getLogger()
 
 
-@PermissionBlueprint.route('', methods=['GET'])
-def getPermission():
-    log = LogConfiguration.getLogger()
-    nombre = request.args.get('nombre')
-    if not nombre:
-        return {"message": "El parámetro 'nombre' es obligatorio"}, 400
+@permissionBp.route('/permisos', methods=['POST'])
+def createPermission() -> tuple[Response, int]:
+    data = request.get_json(silent=True) or {}
+    log.info(f"createPermission - Creando permiso con datos: {data}")
 
-    log.info(f"getPermission - Ingresa a obtener el permiso: {nombre}")
-    permission = permissionService.getPermission(nombre)
-    if permission is not None:
-        return {"nombre": permission.nombre, "descripcion": permission.descripcion}, 200
-    return {"message": f"El permiso '{nombre}' no existe"}, 404
+    try:
+        dto = PermissionDTO(**data)
+    except TypeError as e:
+        return jsonify({'error': f'Datos inválidos: {e}'}), 400
 
+    if not dto.validate():
+        return jsonify({'error': 'Datos inválidos: nombre y descripción son obligatorios.'}), 400
 
-@PermissionBlueprint.route('/', methods=['DELETE'])
-def deletePermission():
-    log = LogConfiguration.getLogger()
-    name = request.args.get('name')
-    if not name:
-        return {"message": "El parámetro 'name' es obligatorio"}, 400
+    service = PermissionService(log)             
+    created, error = service.createPermission(dto)
 
-    log.info(f"deletePermission - Ingresa a eliminar el permiso: {name}")
-    if permissionService.deletePermission(name):
-        return {"message": f"El permiso '{name}' se eliminó correctamente"}, 200
-    return {"message": "Error al eliminar el permiso o el permiso no existe"}, 500
+    if error:
+        log.warning(f"createPermission - {error}")
+        return jsonify({'error': error}), 409
+
+    return jsonify(created.to_dict()), 201
 
 
-@PermissionBlueprint.route('/', methods=['PUT'])
-def updatePermission():
-    log = LogConfiguration.getLogger()
-    body = request.get_json()
-    if not body or 'nombre' not in body:
-        return {"message": "El campo 'nombre' es obligatorio"}, 400
+@permissionBp.route('/permisos/<string:nombre>', methods=['GET'])
+def getPermission(nombre: str) -> tuple[Response, int]:
+    log.info(f"getPermission - Buscando permiso: {nombre}")
 
-    nombreActual = request.args.get('nombreActual', body['nombre'])
-    log.info(f"updatePermission - Ingresa a actualizar el permiso: {nombreActual}")
+    service = PermissionService(log)              
+    dto, error = service.getPermission(nombre)
 
-    permiso = permissionDTO(
-        nombre=body['nombre'],
-        descripcion=body.get('descripcion')
-    )
+    if error:
+        return jsonify({'error': error}), 404
 
-    if permissionService.updatePermission(nombreActual, permiso):
-        return {"message": "El permiso se actualizó correctamente"}, 200
-    return {"message": "Error al actualizar el permiso"}, 500
+    return jsonify(dto.to_dict()), 200
+
+
+@permissionBp.route('/permisos', methods=['GET'])
+def getAllPermissions() -> tuple[Response, int]:
+    log.info("getAllPermissions - Ingresa a recuperar todos los permisos")
+
+    service = PermissionService(log)              
+    permissions, error = service.getAllPermissions()
+
+    if error:
+        log.error(f"getAllPermissions - {error}")
+        return jsonify({'error': error}), 500
+
+    return jsonify([p.to_dict() for p in permissions]), 200
+
+
+@permissionBp.route('/permisos/<string:currentPermission>', methods=['PUT'])
+def updatePermission(currentPermission: str) -> tuple[Response, int]:
+    data = request.get_json(silent=True) or {}
+    log.info(f"updatePermission - Actualizando '{currentPermission}' con datos: {data}")
+
+    try:
+        dto = PermissionDTO(**data)
+    except TypeError as e:
+        return jsonify({'error': f'Datos inválidos: {e}'}), 400
+
+    if not dto.validate():
+        return jsonify({'error': 'Datos inválidos: nombre y descripción son obligatorios.'}), 400
+
+    service = PermissionService(log)             
+    updated, error = service.updatePermission(currentPermission, dto)
+
+    if error:
+        return jsonify({'error': error}), 404
+
+    return jsonify(updated.to_dict()), 200
+
+
+@permissionBp.route('/permisos/<string:nombre>', methods=['DELETE'])
+def deletePermission(nombre: str) -> tuple[Response, int]:
+    log.info(f"deletePermission - Eliminando permiso: {nombre}")
+
+    service = PermissionService(log)             
+    deleted, error = service.deletePermission(nombre)
+
+    if error:
+        return jsonify({'error': error}), 404
+
+    return jsonify({
+        'message': f"Permiso '{deleted.nombre}' eliminado exitosamente.",
+        'permiso': deleted.to_dict()
+    }), 200

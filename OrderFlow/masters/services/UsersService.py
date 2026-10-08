@@ -1,30 +1,52 @@
-from repositories.UsersRepository import UsersRepository
 from configuration.LogConfiguration import LogConfiguration
-from model.dto import userDTO
-from werkzeug.security import generate_password_hash
-
-usersRepository = UsersRepository()
+from model.dto.userDTO import UserDTO
+from repositories.RolRepository import RolRepository
+from repositories.UserRepository import UserRepository
 
 
 class UsersService:
 
-    def __init__(self):
-        self.log = LogConfiguration.getLogger()
+    def __init__(self, log=None):
+        self.log = log or LogConfiguration.getLogger()
+        self.usersRepository = UserRepository(self.log)
+        self.rolRepository = RolRepository(self.log)
 
-    def createUser(self, user: userDTO) -> bool:
-        self.log.info("createUser - Ingresa con usuario: ", body=user.username)
-        user.password = generate_password_hash(user.password)
-        return usersRepository.save(user) is not None
+    def createUser(self, user: UserDTO) -> tuple[UserDTO | None, str | None, int]:
+        if user is None:
+            return None, "DTO nulo recibido.", 400
 
-    def getUser(self, username: str) -> userDTO | None:
-        self.log.info("getUser - Ingresa con nombre: ", body=username)
-        return usersRepository.findByUsername(username)
+        self.log.info(f"createUser - Creando usuario: {user.username}")
 
-    def updateUser(self, usernameActual: str, userData: userDTO) -> bool:
-        self.log.info(f"updateUser - Actualizar usuario '{usernameActual}'")
-        userData.password = generate_password_hash(userData.password)
-        return usersRepository.update(usernameActual, userData)
+        if user.rol:
+            rolDto, rolError, _ = self.rolRepository.findByName(user.rol)
+            if rolError or rolDto is None:
+                self.log.warning(f"createUser - El rol '{user.rol}' no existe.")
+                return None, f"El rol '{user.rol}' no existe en el sistema.", 400
 
-    def deleteUser(self, username: str) -> bool:
-        self.log.info("deleteUser - Eliminar usuario: ", body=username)
-        return usersRepository.delete(username)
+        return self.usersRepository.save(user)
+
+    def getUser(self, username: str) -> tuple[UserDTO | None, str | None, int]:
+        self.log.info(f"getUser - Buscando usuario: {username}")
+        return self.usersRepository.findByUsername(username)
+
+    def getAllUsers(self) -> tuple[list[UserDTO], str | None, int]:
+        self.log.info("getAllUsers - Obteniendo todos los usuarios")
+        return self.usersRepository.getAll()
+
+    def updateUser(self, usernameActual: str, user: UserDTO) -> tuple[UserDTO | None, str | None, int]:
+        if user is None:
+            return None, "DTO nulo recibido.", 400
+
+        self.log.info(f"updateUser - Actualizando usuario '{usernameActual}'")
+
+        if user.rol:
+            rolDto, rolError, _ = self.rolRepository.findByName(user.rol)
+            if rolError or rolDto is None:
+                self.log.warning(f"updateUser - El rol '{user.rol}' no existe.")
+                return None, f"El rol '{user.rol}' no existe en el sistema.", 400
+
+        return self.usersRepository.update(usernameActual, user)
+
+    def deleteUser(self, username: str) -> tuple[UserDTO | None, str | None, int]:
+        self.log.info(f"deleteUser - Eliminando usuario: {username}")
+        return self.usersRepository.delete(username)
