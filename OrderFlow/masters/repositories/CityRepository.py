@@ -1,4 +1,3 @@
-from openpyxl import load_workbook
 from sqlalchemy.exc import IntegrityError
 
 from model.entities.CityEntity import CityEntity
@@ -9,34 +8,13 @@ class CityRepository:
         self.log = log
         self.session = session
 
-    def importZipCodes(self, file):
-        workbook = load_workbook(file)
-        sheet = workbook.active
-
+    def importZipCodes(self, cityEntities):
         inserted = 0
         ignoredDuplicates = 0
         skipped = 0
 
-        for row in sheet.iter_rows(min_row=2, values_only=True):
-            if not row or row[0] is None:
-                skipped += 1
-                continue
-
+        for cityEntity in cityEntities:
             try:
-                rawCp = row[0]
-                postalCode = str(int(rawCp)) if isinstance(rawCp, float) else str(rawCp).strip()
-
-                if not postalCode:
-                    skipped += 1
-                    continue
-
-                cityName = str(row[1]).strip().title() if row[1] and str(row[1]).strip() else ""
-
-                cityEntity = CityEntity(
-                    codigo_postal=postalCode,
-                    nombre_localidad=cityName
-                )
-
                 self.session.add(cityEntity)
                 self.session.commit()
                 inserted += 1
@@ -47,7 +25,7 @@ class CityRepository:
             except Exception as e:
                 self.session.rollback()
                 skipped += 1
-                self.log.error(f"Error in row {row}: {e}")
+                self.log.error(f"Error importing city: {e}")
                 continue
 
         return {

@@ -10,38 +10,49 @@ CitiesBlueprint = Blueprint('cities', __name__, url_prefix='/master/cities')
 @CitiesBlueprint.route('', methods=['POST'])
 def importZipCodes() -> tuple[dict, int]:
     session = sessionLocal()
-    log = LogConfiguration.getLogger()
-    cityService = CityService(log, session=session)
-    
-    log.info("importZipCodes - Entering zip codes import")
+    try:
 
-    if 'file' not in request.files:
-        return {"message": "No file sent in request"}, 400
-    
-    file = request.files['file']
-    if file.filename == '':
-        return {"message": "Empty filename"}, 400
+        log = LogConfiguration.getLogger()
+        cityService = CityService(log, session=session)
+        
+        log.info("importZipCodes - Entering zip codes import")
 
-    result = cityService.importZipCodes(request)
+        if 'file' not in request.files:
+            return {"message": "No file sent in request"}, 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return {"message": "Empty filename"}, 400
+
+        result = cityService.importZipCodes(request)
+        
+        if result is not None:
+            return result, 200
+        else:
+            return {"message": "Error importing zip codes"}, 500
     
-    if result is not None:
-        return result, 200
-    else:
-        return {"message": "Error importing zip codes"}, 500
+    finally:
+        session.close()
+    
 
 @CitiesBlueprint.route('', methods=['GET'])
 def getPostalCodes() -> tuple[list[dict], int]:
 
     session = sessionLocal()
-    log = LogConfiguration.getLogger()
-    cityService = CityService(log, session=session)
 
-    log.info("getPostalCodes - Entering postal codes retrieval")
+    try:
 
-    postalCode = request.args.get('postalCode')
-    cityName = request.args.get('cityName')
+        log = LogConfiguration.getLogger()
+        cityService = CityService(log, session=session)
 
-    result = cityService.getPostalCodes(postalCode, cityName)
+        log.info("getPostalCodes - Entering postal codes retrieval")
+
+        postalCode = request.args.get('postalCode')
+        cityName = request.args.get('cityName')
+
+        result = cityService.getPostalCodes(postalCode, cityName)
+        
+        return [asdict(city) for city in result], 200
     
-    # Convertimos la lista de DTOs a lista de diccionarios para la respuesta JSON
-    return [asdict(city) for city in result], 200
+    finally:
+        session.close()
