@@ -26,7 +26,8 @@ class UsersService:
             if rolError or rolDto is None:
                 self.log.warning(f"createUser - El rol '{user.rol}' no existe.")  #idem aca mandar exception
                 return None, f"El rol '{user.rol}' no existe en el sistema.", 400
-
+        # no tomar la exception o catchearla y volver a hacer raise de la misma o de internalError hacia el controller
+        
         return self.usersRepository.save(user)
 
     def getUser(self, username: str) -> tuple[UserDTO | None, str | None, int]:

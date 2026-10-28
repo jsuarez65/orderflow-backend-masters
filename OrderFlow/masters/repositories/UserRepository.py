@@ -35,9 +35,9 @@ class UserRepository:
                 self.log.warning(f"save - El usuario '{entity.username}' ya existe.")
                 return None, f"El usuario '{entity.username}' ya existe.", 409
 
-            session.add(entity)
-            session.commit()  # el commit lo debe hacer el servicio, al igual que el rollback
-            return UserMapper.toDTO(entity), None, 201
+            user = session.add(entity)
+            session.flush()  # el commit lo debe hacer el servicio, al igual que el rollback
+            return user
 
         except Exception as ex:
             session.rollback()  #las excepcionjes manejarlas ddesde el service
