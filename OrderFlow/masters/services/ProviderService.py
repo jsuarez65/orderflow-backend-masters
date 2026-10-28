@@ -6,7 +6,7 @@ from repositories.ProviderRepository import ProviderRepository
 
 class ProviderService:
          
-    def __init__(self,log, session): 
+    def __init__(self,log, session): #recibe el log y la session de la base de datos por inyeccion de dependencias para poder usarlo en los metodos de la clase y para poder crear una instancia de ProviderRepository con la session de la base de datos
         self.log = log
         self.providerRepository = ProviderRepository(session)
 

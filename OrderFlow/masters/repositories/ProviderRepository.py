@@ -10,7 +10,7 @@ class ProviderRepository:
         self.session = session
         self.log = log
 
-    def findAll(self) -> list[ProviderEntity]:
+    def findAll(self) -> list[ProviderEntity]:#que le llega y que devuelve 
 
         try:
             return self.session.query(ProviderEntity).all()
@@ -19,7 +19,7 @@ class ProviderRepository:
             self.log.error(f"findAll - Error al obtener todos los proveedores: {str(ex)}")
             return []
 
-    def save(self, provider: ProviderEntity) -> ProviderEntity | None:
+    def save(self, provider: ProviderEntity) -> ProviderEntity | None:#que le llega y que devuelve 
 
         try:
             providerFound = self._findByCuit(provider.cuit)
@@ -37,7 +37,7 @@ class ProviderRepository:
             self.session.rollback()
             return None
 
-    def existsById(self, cuit:str) -> bool:
+    def existsById(self, cuit:str) -> bool:#que le llega y que devuelve 
         return self._findByCuit(cuit) is not None
 
     def _findByCuit(self, cuit:str) -> ProviderEntity | None:
