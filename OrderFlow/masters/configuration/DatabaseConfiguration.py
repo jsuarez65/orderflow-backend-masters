@@ -6,6 +6,6 @@ class Base(DeclarativeBase):
     pass
 
 engine = create_engine('postgresql+psycopg2://ep-dry-art-acz5gndj-pooler.sa-east-1.aws.neon.tech:5432/' + 
-                        'orderflow?user=neondb_owner&password=npg_oYRmQ2e0IHaT&sslmode=require')
+                        'orderflow?user=neondb_owner&password=npg_oYRmQ2e0IHaT&sslmode=require', pool_pre_ping=True)
 
 sessionLocal = sessionmaker(bind=engine)

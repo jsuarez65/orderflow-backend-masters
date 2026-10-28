@@ -31,5 +31,5 @@ class ProductEntity(Base):
         nullable=False
     )
 
-    productoCategoria = relationship("ProductCategoryEntity")
+    #productoCategoria = relationship("ProductCategoryEntity")
     #relationshipproveedor = relationship("ProviderEntity")
