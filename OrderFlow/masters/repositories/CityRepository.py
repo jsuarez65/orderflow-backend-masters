@@ -40,10 +40,10 @@ class CityRepository:
         query = self.session.query(CityEntity)
 
         if postalCode:
-            query = query.filter(CityEntity.codigo_postal == postalCode.strip())
+            query = query.filter(CityEntity.postalCode == postalCode.strip())
         
         if cityName:
-            query = query.filter(CityEntity.nombre_localidad.ilike(f"%{cityName.strip()}%"))
+            query = query.filter(CityEntity.cityName.ilike(f"%{cityName.strip()}%"))
 
         cities = query.all()
         return CityMapper.toListDTO(cities)

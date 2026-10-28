@@ -7,7 +7,7 @@ from configuration.DatabaseConfiguration import sessionLocal
 
 CitiesBlueprint = Blueprint('cities', __name__, url_prefix='/master/cities')
 
-@CitiesBlueprint.route('', methods=['POST'])
+@CityBlueprint.route('', methods=['POST'])
 def importZipCodes() -> tuple[dict, int]:
     session = sessionLocal()
     try:
@@ -35,7 +35,7 @@ def importZipCodes() -> tuple[dict, int]:
         session.close()
     
 
-@CitiesBlueprint.route('', methods=['GET'])
+@CityBlueprint.route('', methods=['GET'])
 def getPostalCodes() -> tuple[list[dict], int]:
 
     session = sessionLocal()

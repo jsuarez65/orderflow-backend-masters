@@ -20,7 +20,7 @@ class CityService:
         postalCodes = self.excelService.readPostalCodes(file)
         
         cityEntities = [
-            CityEntity(codigo_postal=postalCode, nombre_localidad=cityName)
+            CityEntity(postalCode=postalCode, cityName=cityName)
             for postalCode, cityName in postalCodes
         ]
 

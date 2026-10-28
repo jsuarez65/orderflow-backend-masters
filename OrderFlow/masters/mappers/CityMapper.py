@@ -10,8 +10,8 @@ class CityMapper:
 
         return CityDTO(
             id=entity.id,
-            postal_code=entity.codigo_postal,
-            city_name=entity.nombre_localidad
+            postalCode=entity.postalCode,
+            cityName=entity.cityName
         )
 
     @staticmethod
@@ -21,8 +21,8 @@ class CityMapper:
 
         return CityEntity(
             id=dto.id,
-            codigo_postal=dto.postal_code,
-            nombre_localidad=dto.city_name
+            postalCode=dto.postal_code,
+            cityName=dto.city_name
         )
 
     @staticmethod
