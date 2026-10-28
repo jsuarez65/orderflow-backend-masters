@@ -6,3 +6,12 @@ master_product.log
 OrderFlow/masters/master_service.log
 OrderFlow/masters/model/dtos/__pycache__/ProductDTO.cpython-314.pyc
 OrderFlow/masters/model/dtos/__pycache__/__init__.cpython-314.pyc
+OrderFlow/masters/model/entities/__pycache__/ProductEntity.cpython-314.pyc
+OrderFlow/masters/exceptions/__pycache__/product_exceptions.cpython-314.pyc
+OrderFlow/masters/exceptions/__pycache__/__init__.cpython-314.pyc
+OrderFlow/masters/mappers/__pycache__/__init__.cpython-314.pyc
+OrderFlow/masters/mappers/__pycache__/ProductMapper.cpython-314.pyc
+OrderFlow/masters/model/dtos/__pycache__/OperationResultDTO.cpython-314.pyc
+OrderFlow/masters/model/entities/__pycache__/__init__.cpython-314.pyc
+OrderFlow/masters/model/entities/__pycache__/ProductEntity.cpython-314.pyc
+*.pyc

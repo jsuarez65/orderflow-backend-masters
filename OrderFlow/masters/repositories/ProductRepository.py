@@ -1,5 +1,4 @@
 
-from model.dtos import ProductDTO
 from model.entities import ProductEntity
 
 
@@ -10,65 +9,39 @@ class ProductRepository:
         self.log = log
 
     def findAll(self) -> list[ProductEntity]:
+        return self.session.query(ProductEntity).all()
 
-        try:
-            return self.session.query(ProductEntity).all()
-        
-        except Exception as ex:
-            self.log.error(f"findAll - Error al recuperar productos: {str(ex)}")
-            return []
+    def save(self, product: ProductEntity) -> ProductEntity:
+        productFound = self._findByInternalCode(product.codigoInterno)
 
-    def save(self, product: ProductEntity) -> ProductEntity | None:
+        if productFound:
+            self.log.warning(
+                f"save - El producto ya existe, se procederá a actualizarlo: {product}"
+            )
+            return self._update(productFound, product)
 
-        try:
-            productFound = self.findByInternalCode(product.internalCode)
-
-            if productFound:
-                self.log.warning(
-                    f"save - El producto ya existe, se procederá a actualizarlo: {product}"
-                )
-                return self._update(productFound, product)
-
-            return self._insert(product)
-
-        except Exception as ex:
-            self.log.error(f"save - Error al guardar producto: {str(ex)}")
-            self.session.rollback()
-            return None
+        return self._insert(product)
 
     def existsById(self, internalCode: str) -> bool:
         return self._findByInternalCode(internalCode) is not None
 
     def _findByInternalCode(self, internalCode: str) -> ProductEntity | None:
+        return (
+            self.session.query(ProductEntity)
+            .filter(ProductEntity.codigoInterno == internalCode)
+            .first()
+        )
 
-        try:
-            return (
-                self.session.query(ProductEntity)
-                .filter(ProductEntity.codigoInterno == internalCode)
-                .first()
-            )
-
-        except Exception as ex:
-            self.log.error(
-                f"_findByInternalCode - Error al buscar producto: {str(ex)}"
-            )
-            return None
 
     def _insert(self, product: ProductEntity) -> ProductEntity:
-
         self.session.add(product)
-        self.session.commit()
-
         return product
 
     def _update(self, entityToUpdate: ProductEntity, entity: ProductEntity) -> ProductEntity:
-
         entityToUpdate.sku = entity.sku
         entityToUpdate.codigoBarras = entity.barcode
         entityToUpdate.descripcion = entity.description
         entityToUpdate.stockMinimo = entity.minimumStock
         entityToUpdate.stockMaximo = entity.maximumStock
-
-        self.session.commit()
 
         return entityToUpdate

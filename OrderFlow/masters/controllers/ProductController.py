@@ -1,115 +1,121 @@
-from dataclasses import asdict
-from logging import log
+from fastapi import APIRouter, Depends, Response
+from sqlalchemy.orm import Session
 
-from flask import Blueprint, request
+from exceptions.product_exceptions import (
+    ProductAlreadyExistsException,
+    ProductCreationException,
+    ProductNotFoundException,
+    ProductUpdateException
+)
+
+from model.dtos.OperationResultDTO import OperationResultDTO
 from model.dtos.ProductDTO import ProductDTO
 from services.ProductService import ProductService
 from configuration.LogConfiguration import LogConfiguration
 from configuration.DatabaseConfiguration import sessionLocal
 
-ProductBlueprint = Blueprint('product', __name__, url_prefix='/master/product')
+ProductRouter = APIRouter(prefix="/master/product", tags=["Products"])
 
-@ProductBlueprint.route('', methods=['GET'])
-def getAll() -> tuple[list[dict], int]:
-    """ 
-    Permite recuperar todos los productos registrados en la base de datos.
-    ---
-    responses:
-      200:
-        description: Lista de ProductDTO.
-        schema:
-          type: array
-          items:
-            $ref: '#/definitions/ProductDTO'
-    definitions:
-      ProductDTO:
-        type: object
-        properties:
-          internalCode:
-            type: string
-            example: "PROD-001"
-          sku:
-            type: string
-            example: "SKU-12345"
-          barcode:
-            type: string
-            example: "7791234567890"
-          description:
-            type: string
-            example: "Descripción del producto"
-          unitMeasurements:
-            type: string
-            example: "Unidades"
-          weight:
-            type: number
-            format: float
-            example: 1.5
-          dimensions:
-            type: string
-            example: "10x20x30 cm"
-          minimumStock:
-            type: number
-            format: float
-            example: 10.0
-          maximumStock:
-            type: number
-            format: float
-            example: 100.0
-          reorderPoint:
-            type: number
-            format: float
-            example: 20.0
-          productCategoriesId:
-            type: integer
-            example: 5
-          providerTaxId:
-            type: string
-            example: "30-12345678-9"
-    """
-            
+
+def getSession():
+    session = sessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
+@ProductRouter.get("", response_model=OperationResultDTO)
+def getAll(response: Response, session: Session = Depends(getSession)
+           ) -> OperationResultDTO:
+
     log = LogConfiguration.getLogger()
-    
     log.info("getAll - Ingresa a recuperar todos los productos")
 
-    session = sessionLocal()
-    productService = ProductService(log, session=session)
-    products = productService.findAll()
+    try:
+        productService = ProductService(log, session=session)
+        products = productService.findAll()
 
-    return {products}, 200
+        return OperationResultDTO(
+            data=[products]
+        )
 
-@ProductBlueprint.route('', methods=['POST'])
-def create() -> tuple[dict, int]:
-    
-    session = sessionLocal()
+    except Exception:
+        log.exception("getAll - Error al recuperar los productos")
+        response.status_code = 500
+
+        return OperationResultDTO(
+            message="Error interno al recuperar los productos."
+        )
+
+
+@ProductRouter.post("", status_code=201, response_model=OperationResultDTO)
+def create(productData: ProductDTO, response: Response, 
+           session: Session = Depends(getSession) ) -> OperationResultDTO:
+
     log = LogConfiguration.getLogger()
-    
-    product = ProductDTO(**request.get_json())
+    log.info("create - Ingresa con: {}", productData)
 
-    productService = ProductService(log, session=session)
+    try:
+        productService = ProductService(log, session=session)
+        productCreated = productService.create(productData)
 
-    log.info("create - Ingresa con producto: ", body=product)
+        return OperationResultDTO(
+            data=productCreated.model_dump(mode="json")
+        )
 
-    productCreated = productService.create(product)
+    except ProductAlreadyExistsException as ex:
+        response.status_code = 409
+        return OperationResultDTO(message=str(ex))
 
-    if (productCreated is not None):
-        return asdict(productCreated), 200
-    else:
-        return {"message": "No se puede crear el producto debido a que el mismo ya existe"}, 500
+    except ProductCreationException:
+        log.exception("create - Error al crear el producto")
+        response.status_code = 500
 
-@ProductBlueprint.route('', methods=['PUT'])
-def update() -> tuple[dict, int]:
+        return OperationResultDTO(
+            message="Error interno al crear el producto."
+        )
 
-    session = sessionLocal()
+    except Exception:
+        log.exception("create - Error inesperado")
+        response.status_code = 500
+
+        return OperationResultDTO(
+            message="Error interno al crear el producto."
+        )
+
+
+@ProductRouter.put("", response_model=OperationResultDTO)
+def update(productData: ProductDTO, response: Response, 
+           session: Session = Depends(getSession)) -> OperationResultDTO:
+
     log = LogConfiguration.getLogger()
+    log.info("update - Ingresa con: {}", productData)
 
-    productService = ProductService(log, session=session)
+    try:
+        productService = ProductService(log, session=session)
+        productUpdated = productService.update(productData)
 
-    product = ProductDTO(**request.get_json())
-    
-    log.info("update - Ingresa con producto: ", body=product)
+        return OperationResultDTO(
+            data=productUpdated.model_dump(mode="json")
+        )
 
-    productUpdated = productService.update(product)
-    if (productUpdated is not None):
-        return asdict(productUpdated), 200
-    else:
-        return {"message": "El producto a actualizar no existe"}, 500
+    except ProductNotFoundException as ex:
+        response.status_code = 404
+        return OperationResultDTO(message=str(ex))
+
+    except ProductUpdateException:
+        log.exception("update - Error al actualizar el producto")
+        response.status_code = 500
+
+        return OperationResultDTO(
+            message="Error interno al actualizar el producto."
+        )
+
+    except Exception:
+        log.exception("update - Error inesperado")
+        response.status_code = 500
+
+        return OperationResultDTO(
+            message="Error interno al actualizar el producto."
+        )
