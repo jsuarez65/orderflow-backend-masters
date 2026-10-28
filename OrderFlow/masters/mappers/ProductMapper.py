@@ -1,7 +1,8 @@
 from decimal import Decimal
 
-from OrderFlow.masters.model.entities.ProductEntity import ProductEntity
-from OrderFlow.masters.model.dtos.ProductDTO import ProductDTO
+from model.entities.ProductEntity import ProductEntity
+from model.dtos.ProductDTO import ProductDTO
+
 
 class ProductMapper:
 
@@ -19,16 +20,25 @@ class ProductMapper:
             unitMeasurements=entity.medidasUnidad,
             weight=entity.peso,
             dimensions=entity.dimensiones,
-            minimumStock=Decimal(str(entity.stockMinimo)),
-            maximumStock=Decimal(str(entity.stockMaximo)),
-            reorderPoint=Decimal(str(entity.puntoReorden)),
+            minimumStock=(
+                Decimal(str(entity.stockMinimo))
+                if entity.stockMinimo is not None else None
+            ),
+            maximumStock=(
+                Decimal(str(entity.stockMaximo))
+                if entity.stockMaximo is not None else None
+            ),
+            reorderPoint=(
+                Decimal(str(entity.puntoReorden))
+                if entity.puntoReorden is not None else None
+            ),
             productCategoriesId=entity.productoCategoriasId,
             providerTaxId=entity.proveedorCuit
         )
 
     @staticmethod
     def toEntity(dto: ProductDTO) -> ProductEntity:
-        
+
         if dto is None:
             return None
 
@@ -38,7 +48,7 @@ class ProductMapper:
             codigoBarras=dto.barcode,
             descripcion=dto.description,
             medidasUnidad=dto.unitMeasurements,
-            peso=dto.weight,
+            peso=float(dto.weight) if dto.weight is not None else 0.0,
             dimensiones=dto.dimensions,
             stockMinimo=float(dto.minimumStock) if dto.minimumStock is not None else 0.0,
             stockMaximo=float(dto.maximumStock) if dto.maximumStock is not None else 0.0,
@@ -52,5 +62,5 @@ class ProductMapper:
 
         if not products:
             return []
-        
+
         return [ProductMapper.toDTO(product) for product in products]
