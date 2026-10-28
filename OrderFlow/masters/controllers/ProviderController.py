@@ -1,7 +1,11 @@
+<<<<<<< Updated upstream
 from dataclasses import asdict
 from logging import log
 
 from flask import Blueprint, request, session
+=======
+from flask import Blueprint, request 
+>>>>>>> Stashed changes
 from model.dtos.ProviderDTO import ProviderDTO
 from services.ProviderService import ProviderService
 from configuration.LogConfiguration import LogConfiguration
@@ -10,12 +14,22 @@ from configuration.DatabaseConfiguration import sessionLocal
 ProviderBlueprint = Blueprint('provider', __name__, url_prefix='/master/provider')
 
 @ProviderBlueprint.route('', methods=['GET'])
+<<<<<<< Updated upstream
 def getAll() -> tuple[list[dict], int]:
     """ Create a new provider in the database.
     ---
     responses:
       200:
         description: A list of providers
+=======
+def getProviders():
+     """ 
+    Permite recuperar todos los proveedores registrados en la base de datos.
+    ---
+    responses:
+      200:
+        description: Lista de ProviderDTO.
+>>>>>>> Stashed changes
         schema:
           type: array
           items:
@@ -26,6 +40,7 @@ def getAll() -> tuple[list[dict], int]:
         properties:
           cuit:
             type: string
+<<<<<<< Updated upstream
           company_name:
             type: string
           address:
@@ -43,6 +58,49 @@ def getAll() -> tuple[list[dict], int]:
 
     """
 
+=======
+            example: "PROD-001"
+          sku:
+            type: string
+            example: "SKU-12345"
+          barcode:
+            type: string
+            example: "7791234567890"
+          description:
+            type: string
+            example: "Descripción del producto"
+          unitMeasurements:
+            type: string
+            example: "Unidades"
+          weight:
+            type: number
+            format: float
+            example: 1.5
+          dimensions:
+            type: string
+            example: "10x20x30 cm"
+          minimumStock:
+            type: number
+            format: float
+            example: 10.0
+          maximumStock:
+            type: number
+            format: float
+            example: 100.0
+          reorderPoint:
+            type: number
+            format: float
+            example: 20.0
+          productCategoriesId:
+            type: integer
+            example: 5
+          providerTaxId:
+            type: string
+            example: "30-12345678-9"
+    """
+
+    
+>>>>>>> Stashed changes
     log = LogConfiguration.getLogger()
 
     log.info("getAll - Ingresa a obtener proveedores")

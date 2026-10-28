@@ -1,8 +1,14 @@
+<<<<<<< Updated upstream
 
 from model.entities import ProviderEntity
 from model.dtos import ProviderDTO
 
 
+=======
+from configuration.DatabaseConfiguration import DatabaseConfiguration
+from configuration.LogConfiguration import LogConfiguration
+from model.dtos.ProviderDTO import ProviderDTO
+>>>>>>> Stashed changes
 
 class ProviderRepository:
    
@@ -10,7 +16,13 @@ class ProviderRepository:
         self.session = session
         self.log = log
 
+<<<<<<< Updated upstream
     def findAll(self) -> list[ProviderEntity]:#que le llega y que devuelve 
+=======
+    def save(self, provider : ProviderDTO) -> ProviderDTO | None:
+        
+        sqlCommand = None
+>>>>>>> Stashed changes
 
         try:
             return self.session.query(ProviderEntity).all()
@@ -19,10 +31,14 @@ class ProviderRepository:
             self.log.error(f"findAll - Error al obtener todos los proveedores: {str(ex)}")
             return []
 
+<<<<<<< Updated upstream
     def save(self, provider: ProviderEntity) -> ProviderEntity | None:#que le llega y que devuelve 
 
         try:
             providerFound = self._findByCuit(provider.cuit)
+=======
+            providerFound = self.existsById(provider.cuit)
+>>>>>>> Stashed changes
 
             if providerFound:
                 self.log.warning(
@@ -37,8 +53,18 @@ class ProviderRepository:
             self.session.rollback()
             return None
 
+<<<<<<< Updated upstream
     def existsById(self, cuit:str) -> bool:#que le llega y que devuelve 
         return self._findByCuit(cuit) is not None
+=======
+        finally:
+            if sqlCommand:
+                sqlCommand.close()
+
+    def existsById(self, cuit: str) -> bool:
+
+        sqlCommand = None
+>>>>>>> Stashed changes
 
     def _findByCuit(self, cuit:str) -> ProviderEntity | None:
         
@@ -50,12 +76,18 @@ class ProviderRepository:
             )
 
         except Exception as ex:
+<<<<<<< Updated upstream
             self.log.error(
                 f"_findByCuit - Error al buscar proveedor: {str(ex)}"
             )
             return None
+=======
+            self.log.error(f"existsById - Error al buscar proveedor por CUIT: {str(ex)}")
+            return False
+>>>>>>> Stashed changes
 
 
+<<<<<<< Updated upstream
     def _insert(self, provider: ProviderEntity) -> ProviderEntity:
         
         self.session.add(provider)
@@ -75,5 +107,41 @@ class ProviderRepository:
         entityToUpdate.ciudad = entity.city
 
         self.session.commit()
+=======
+    def _insert(self, sqlCommand, provider: ProviderDTO) -> ProviderDTO | None:
+        
+        sqlCommand.execute("""
+            INSERT INTO Proveedores (cuit, razon_social, domicilio, email, telefono, localidad_codigo_postal, provincia_nombre)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (
+            provider.cuit,
+            provider.company_name,
+            provider.address,
+            provider.email,
+            provider.phone,
+            provider.postal_code,
+            provider.state_name
+        ))
+        return provider
+
+    def _update(self, sqlCommand, provider: ProviderDTO) -> ProviderDTO | None:
+        
+        sqlCommand.execute("""
+            UPDATE Proveedores SET razon_social=%s, domicilio=%s, telefono=%s, email=%s
+            WHERE cuit=%s""", (
+                provider.cuit,
+                provider.company_name,
+                provider.address,
+                provider.email,
+                provider.phone,
+                provider.postal_code,
+                provider.state_name,
+                
+            ))
+        return provider
+
+    def deleteProvider(self, cuit: str):  
+        sqlCommand = None
+>>>>>>> Stashed changes
 
         return entityToUpdate
