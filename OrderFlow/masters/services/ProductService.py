@@ -1,5 +1,6 @@
 
-from OrderFlow.masters.mappers.ProductMapper import ProductMapper
+from exceptions.product_exceptions import ProductAlreadyExistsException, ProductCreationException, ProductNotFoundException, ProductUpdateException
+from mappers.ProductMapper import ProductMapper
 from model.dtos import ProductDTO
 from repositories.ProductRepository import ProductRepository
 
@@ -8,31 +9,59 @@ class ProductService:
 
     def __init__(self, log, session): 
         self.log = log
-        self.productRepository = ProductRepository(session)
+        self.session = session
+        self.productRepository = ProductRepository(log, session)
 
     def findAll(self) -> list[ProductDTO]:
+
+        self.log.info("findAll - Ingresa a recuperar todos los productos")
 
         productEntities = self.productRepository.findAll()
         return ProductMapper.toListDTO(productEntities)
     
     def create(self, product: ProductDTO) -> ProductDTO | None:
         
-        self.log.info("create - Ingresa con product: ", body=product)
+        self.log.info("create - Ingresa con producto: ", body=product)
 
+        
         if self.productRepository.existsById(product.internalCode):
-            self.log.warning("create - El producto ya existe: ", body=product)
-            return None
+            raise ProductAlreadyExistsException(
+                f"El producto con código interno '{product.internalCode}' ya existe.")
 
-        productToCreate = ProductMapper.toEntity(product)
-        return ProductMapper.toDTO(self.productRepository.save(productToCreate))
+        try:
+        
+            productToCreate = ProductMapper.toEntity(product)
+            productCreated = ProductMapper.toDTO(self.productRepository.save(productToCreate))
+
+            self.session.commit()
+            return productCreated
+        
+        except Exception as ex:
+            self.session.rollback()
+            self.log.error(f"create - Error al crear el producto: {str(ex)}")
+            raise ProductCreationException(
+                f"Error al crear el producto: {str(ex)}") from ex
 
     def update(self, product: ProductDTO) -> ProductDTO | None:
         
-        self.log.info("update - Ingresa con product: ", body=product)
+        self.log.info("update - Ingresa con producto: ", body=product)
 
         if not self.productRepository.existsById(product.internalCode):
-            self.log.warning("update - El producto no existe: ", body=product)
-            return None
+            raise ProductNotFoundException(
+                f"El producto con código interno '{product.internalCode}' no existe.")
 
-        productToUpdate = ProductMapper.toEntity(product)
-        return ProductMapper.toDTO(self.productRepository.save(productToUpdate))
+        try:
+
+            productToUpdate = ProductMapper.toEntity(product)
+            productUpdated = ProductMapper.toDTO(self.productRepository.save(productToUpdate))
+
+            self.session.commit()
+            return productUpdated
+        
+
+        except Exception as ex:
+            self.session.rollback()
+            self.log.error(f"update - Error al actualizar el producto: {str(ex)}")
+            raise ProductUpdateException(
+                f"Error al actualizar el producto: {str(ex)}") from ex   
+        
