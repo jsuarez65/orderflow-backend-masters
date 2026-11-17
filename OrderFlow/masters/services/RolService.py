@@ -1,34 +1,44 @@
-from repositories.RolRepository import RolRepository
-from configuration.LogConfiguration import LogConfiguration
+from mappers.RolMappers import RolMapper
+from exceptions.rol_exceptions import (
+    RolNotFoundException,
+    RolAlreadyExistsException,
+    RolCreationException,
+    RolUpdateException)
+
 from model.dto.rolDTO import RolDTO
+from repositories.RolRepository import RolRepository
+
 
 
 class RolService:
 
-    def __init__(self, log=None):
-        self.log = log or LogConfiguration.getLogger()
-        self.rolRepository = RolRepository(self.log)
+    def __init__(self, log=None, session=None):
+        
+        self.log = log 
+        self.session = session
+        self.rolRepository = RolRepository(log, session)
 
-    def createRol(self, rol: RolDTO) -> tuple[RolDTO | None, str | None, int]:
-        if rol is None:
-            return None, "DTO nulo recibido.", 400
-        self.log.info(f"createRol - Ingresa con rol: {rol.rol}")
-        return self.rolRepository.save(rol)
-
-    def getRol(self, rol: str) -> tuple[RolDTO | None, str | None, int]:
-        self.log.info(f"getRol - Ingresa con nombre: {rol}")
-        return self.rolRepository.findByName(rol)
-
-    def getAllRoles(self) -> tuple[list[RolDTO], str | None, int]:
-        self.log.info("getAllRoles - Obteniendo todos los roles")
-        return self.rolRepository.getAll()
-
-    def updateRol(self, rolActual: str, rolNuevo: RolDTO) -> tuple[RolDTO | None, str | None, int]:
-        if rolNuevo is None:
-            return None, "DTO nulo recibido.", 400
-        self.log.info(f"updateRol - Actualizar rol '{rolActual}'")
-        return self.rolRepository.update(rolActual, rolNuevo)
-
-    def deleteRol(self, rol: str) -> tuple[RolDTO | None, str | None, int]:
-        self.log.info(f"deleteRol - Eliminar rol: {rol}")
-        return self.rolRepository.delete(rol)
+    def createRol(self, rol: RolDTO) -> RolDTO | None:
+        self.log.info(f"createRol - Ingresa con rol: ", body=rol)
+        
+        if self.rolRepository.findByName(rol.nombre) is not None:
+                raise RolAlreadyExistsException(
+                    f"El rol '{rol.nombre}' ya existe."
+                )
+        try:
+            rolToCreate = RolMapper.dtoToEntity(rol)
+            createdRol = self.rolRepository.create(rolToCreate)
+            self.session.commit()
+            return createdRol
+        except Exception as e:
+            self.session.rollback()
+            self.log.error(f"createRol - Excepción inesperada: {e}")
+            raise RolCreationException(
+                "Error inesperado al crear el rol."
+            ) from e
+def getAllRoles(self) -> list[RolDTO]:
+        
+            self.log.info("getAllRoles - Obteniendo todos los roles")
+            rolEntity= self.rolRepository.getAllRoles()
+            return RolMapper.entityListToDTOList(rolEntity)
+        

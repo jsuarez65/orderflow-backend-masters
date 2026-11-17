@@ -1,95 +1,120 @@
-from flask import Blueprint, request, jsonify, Response
-from services.PermissionService import PermissionService
+from fastapi import APIRouter, Depends, Response
+from sqlalchemy.orm import Session
+
+from exceptions.permission_exceptions import (
+    PermissionAlreadyExistsException,
+    PermissionCreationException,
+    PermissionNotFoundException,
+    PermissionUpdateException
+)
+
+from model.dto.OperationResultDTO import OperationResultDTO
 from model.dto.permissionDTO import PermissionDTO
+from services.PermissionService import PermissionService
 from configuration.LogConfiguration import LogConfiguration
+from configuration.DatabaseConfiguration import sessionLocal
 
-permissionBp = Blueprint('permissionBp', __name__)
-log = LogConfiguration.getLogger()
+PermissionRouter = APIRouter(prefix="/master/permission", tags=["Permission"])
 
 
-@permissionBp.route('/permisos', methods=['POST'])
-def createPermission() -> tuple[Response, int]:
-    data = request.get_json(silent=True) or {}
-    log.info(f"createPermission - Creando permiso con datos: {data}")
+def getSession():
+    session = sessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
+
+@PermissionRouter.get("", response_model=OperationResultDTO)
+def getAll(response: Response, session: Session = Depends(getSession)
+           ) -> OperationResultDTO:
+
+    log = LogConfiguration.getLogger()
+    log.info("getAll - Ingresa a recuperar todos los permisos")
 
     try:
-        dto = PermissionDTO(**data)
-    except TypeError as e:
-        return jsonify({'error': f'Datos inválidos: {e}'}), 400
+        permissionService = PermissionService(log, session=session)
+        permission = permissionService.findAll()
 
-    if not dto.validate():
-        return jsonify({'error': 'Datos inválidos: nombre y descripción son obligatorios.'}), 400
+        return OperationResultDTO(
+            data=[permission]
+        )
 
-    service = PermissionService(log)             
-    created, error = service.createPermission(dto)
+    except Exception:
+        log.exception("getAll - Error al recuperar los permisos")
+        response.status_code = 500
 
-    if error:
-        log.warning(f"createPermission - {error}")
-        return jsonify({'error': error}), 409
-
-    return jsonify(created.to_dict()), 201
-
-
-@permissionBp.route('/permisos/<string:nombre>', methods=['GET'])
-def getPermission(nombre: str) -> tuple[Response, int]:
-    log.info(f"getPermission - Buscando permiso: {nombre}")
-
-    service = PermissionService(log)              
-    dto, error = service.getPermission(nombre)
-
-    if error:
-        return jsonify({'error': error}), 404
-
-    return jsonify(dto.to_dict()), 200
+        return OperationResultDTO(
+            message="Error interno al recuperar los permisos."
+        )
 
 
-@permissionBp.route('/permisos', methods=['GET'])
-def getAllPermissions() -> tuple[Response, int]:
-    log.info("getAllPermissions - Ingresa a recuperar todos los permisos")
+@PermissionRouter.post("", status_code=201, response_model=OperationResultDTO)
+def create(permissionData: PermissionDTO, response: Response, 
+           session: Session = Depends(getSession) ) -> OperationResultDTO:
 
-    service = PermissionService(log)              
-    permissions, error = service.getAllPermissions()
-
-    if error:
-        log.error(f"getAllPermissions - {error}")
-        return jsonify({'error': error}), 500
-
-    return jsonify([p.to_dict() for p in permissions]), 200
-
-
-@permissionBp.route('/permisos/<string:currentPermission>', methods=['PUT'])
-def updatePermission(currentPermission: str) -> tuple[Response, int]:
-    data = request.get_json(silent=True) or {}
-    log.info(f"updatePermission - Actualizando '{currentPermission}' con datos: {data}")
+    log = LogConfiguration.getLogger()
+    log.info("create - Ingresa con: {}", permissionData)
 
     try:
-        dto = PermissionDTO(**data)
-    except TypeError as e:
-        return jsonify({'error': f'Datos inválidos: {e}'}), 400
+        permissionService = PermissionService(log, session=session)
+        permissionCreated = permissionService.create(permissionData)
 
-    if not dto.validate():
-        return jsonify({'error': 'Datos inválidos: nombre y descripción son obligatorios.'}), 400
+        return OperationResultDTO(
+            data=permissionCreated.model_dump(mode="json")
+        )
 
-    service = PermissionService(log)             
-    updated, error = service.updatePermission(currentPermission, dto)
+    except PermissionAlreadyExistsException as ex:
+        response.status_code = 409
+        return OperationResultDTO(message=str(ex))
 
-    if error:
-        return jsonify({'error': error}), 404
+    except PermissionCreationException:
+        log.exception("create - Error al crear el permiso")
+        response.status_code = 500
 
-    return jsonify(updated.to_dict()), 200
+        return OperationResultDTO(
+            message="Error interno al crear el permiso."
+        )
+
+    except Exception:
+        log.exception("create - Error inesperado")
+        response.status_code = 500
+
+        return OperationResultDTO(
+            message="Error interno al crear el permiso."
+        )
 
 
-@permissionBp.route('/permisos/<string:nombre>', methods=['DELETE'])
-def deletePermission(nombre: str) -> tuple[Response, int]:
-    log.info(f"deletePermission - Eliminando permiso: {nombre}")
+@PermissionRouter.put("", response_model=OperationResultDTO)
+def update(permissionData: PermissionDTO, response: Response, 
+           session: Session = Depends(getSession)) -> OperationResultDTO:
 
-    service = PermissionService(log)             
-    deleted, error = service.deletePermission(nombre)
+    log = LogConfiguration.getLogger()
+    log.info("update - Ingresa con: {}", permissionData)
 
-    if error:
-        return jsonify({'error': error}), 404
+    try:
+        permissionService = PermissionService(log, session=session)
+        permissionUpdated = permissionService.update(permissionData)
 
-    return jsonify({
-        'message': f"Permiso '{deleted.nombre}' eliminado exitosamente.",
-        'permiso': deleted.to_dict()
-    }), 200
+        return OperationResultDTO(
+            data=permissionUpdated.model_dump(mode="json")
+        )
+
+    except PermissionNotFoundException as ex:
+        response.status_code = 404
+        return OperationResultDTO(message=str(ex))
+
+    except PermissionUpdateException:
+        log.exception("update - Error al actualizar el permiso")
+        response.status_code = 500
+
+        return OperationResultDTO(
+            message="Error interno al actualizar el permiso."
+        )
+
+    except Exception:
+        log.exception("update - Error inesperado")
+        response.status_code = 500
+
+        return OperationResultDTO(
+            message="Error interno al actualizar el permiso."
+        )

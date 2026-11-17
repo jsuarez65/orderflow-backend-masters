@@ -1,3 +1,5 @@
+
+
 from model.entities.PermissionEntity import PermissionEntity
 from model.dto.permissionDTO import PermissionDTO
 

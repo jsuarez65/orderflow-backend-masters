@@ -1,15 +1,22 @@
-from dataclasses import dataclass, asdict
-from typing import Optional
+from typing import Any
+
+from pydantic import BaseModel, Field
 
 
-@dataclass
-class UserDTO:
-    username: Optional[str] = None
-    password: Optional[str] = None
-    rol: Optional[str] = None
+class UserDTO(BaseModel):
+    username: str | None = None
+    password: str | None = Field(default=None, repr=False)
+    rol: str | None = None
+
+    @classmethod
+    def of(cls, data: dict[str, Any]) -> "UserDTO":
+        return cls(
+            username=data.get("username"),
+            password=data.get("password"),
+            rol=data.get("rol")
+        )
 
     def validate(self) -> bool:
-        
         if not self.username or not self.username.strip():
             return False
         if len(self.username) > 50:
@@ -24,11 +31,5 @@ class UserDTO:
             return False
         return True
 
-    def to_dict(self) -> dict:
-        return asdict(self)
-
-    def __repr__(self) -> str:
-        return (
-            f"UserDTO(username={self.username!r}, "
-            f"password='***', rol={self.rol!r})"
-        )
+    def to_dict(self) -> dict[str, Any]:
+        return self.model_dump()

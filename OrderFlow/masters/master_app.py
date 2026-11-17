@@ -1,30 +1,33 @@
-
-    
-from flask import Flask
-from flasgger import Swagger
-from flask_cors import CORS
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from configuration.LogConfiguration import LogConfiguration
+from controllers.PermissionController import PermissionRouter
+from controllers.RolController import RolRouter
+from controllers.UsersController import UsersRouter
+
+app = FastAPI(
+    title="OrderFlow API",
+    version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+app.include_router(PermissionRouter)
+app.include_router(RolRouter)
+app.include_router(UsersRouter)
+
 LogConfiguration.configure()
-log = LogConfiguration.getLogger()
-
-from controllers.PermissionController import permissionBp
-from controllers.RolController import rolBp
-from controllers.UsersController import userBp
 
 
-masterMain = Flask(__name__)
+if __name__ == "__main__":
+    import uvicorn
 
-swagger = Swagger(masterMain)
-CORS(masterMain)
-
-masterMain.register_blueprint(permissionBp)
-masterMain.register_blueprint(rolBp)
-masterMain.register_blueprint(userBp)
-
-
-if __name__ == '__main__':
-    log.info("Iniciando el servidor de desarrollo en http://localhost:5000...")
-    masterMain.run(debug=True, host='0.0.0.0', port=5000)
-
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
 

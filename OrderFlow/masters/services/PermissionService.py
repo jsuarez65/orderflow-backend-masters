@@ -1,34 +1,72 @@
-from repositories.PermissionRepository import PermissionRepository
-from configuration.LogConfiguration import LogConfiguration
+from mappers.PermissionMappers import PermissionMapper
+from exceptions.permission_exceptions import (
+    PermissionNotFoundException,
+    PermissionAlreadyExistsException,
+    PermissionCreationException,
+    PermissionUpdateException
+)
 from model.dto.permissionDTO import PermissionDTO
+from repositories.PermissionRepository import PermissionRepository
+
 
 
 class PermissionService:
 
-    def __init__(self, log=None,):
-        self.log = log or LogConfiguration.getLogger()
-        self.permissionRepository = PermissionRepository(self.log)
+    def __init__(self, log=None, session=None):
+        
+        self.log = log 
+        self.session = session
+        self.permissionRepository = PermissionRepository(log, session)
 
-    def createPermission(self, permission: PermissionDTO) -> tuple[PermissionDTO | None, str | None]:
-        if permission is None:
-            return None, "DTO nulo recibido."
-        self.log.info(f"createPermission - Ingresa con permission: {permission.nombre}")
-        return self.permissionRepository.save(permission)
+    
+    def createPermission(self, permission: PermissionDTO) -> PermissionDTO | None:
+        
+        self.log.info(f"createPermission - Ingresa con permission: ", body=permission)
 
-    def getPermission(self, nombre: str) -> tuple[PermissionDTO | None, str | None]:
-        self.log.info(f"getPermission - Ingresa con nombre: {nombre}")
-        return self.permissionRepository.findByName(nombre)
+        if self.permissionRepository.findByName(permission.nombre) is not None:
+                raise PermissionAlreadyExistsException(
+                    f"El permiso '{permission.nombre}' ya existe."
+                )
+        try:
+            permissionToCreate = PermissionMapper.dtoToEntity(permission)
+            createdPermission = self.permissionRepository.create(permissionToCreate)
+            self.session.commit()
+            return createdPermission
+        except Exception as e:
+            self.session.rollback()
+            self.log.error(f"createPermission - Excepción inesperada: {e}")
+            raise PermissionCreationException(
+                "Error inesperado al crear el permiso."
+            ) from e
 
-    def getAllPermissions(self) -> tuple[list[PermissionDTO], str | None]:
-        self.log.info("getAllPermissions - Obteniendo todos los permisos")
-        return self.permissionRepository.getAllPermissions()
+        
 
-    def updatePermission(self, nombreActual: str, permission: PermissionDTO) -> tuple[PermissionDTO | None, str | None]:
-        if permission is None:
-            return None, "DTO nulo recibido."
-        self.log.info(f"updatePermission - Actualizar permiso '{nombreActual}'")
-        return self.permissionRepository.update(nombreActual, permission)
+    def getAllPermissions(self) -> list[PermissionDTO]:
+        
+            self.log.info("getAllPermissions - Obteniendo todos los permisos")
+            permissionEntity= self.permissionRepository.getAllPermissions()
+            return PermissionMapper.entityListToDTOList(permissionEntity)
+        
 
-    def deletePermission(self, nombre: str) -> tuple[PermissionDTO | None, str | None]:
-        self.log.info(f"deletePermission - Eliminar permiso: {nombre}")
-        return self.permissionRepository.delete(nombre)
+    def updatePermission(
+        self, permission: PermissionDTO) -> PermissionDTO | None:
+        
+        self.log.info(f"updatePermission - Actualizar permiso ", body=permission)
+        
+        if not self.permissionRepository.findById(permission.id):
+            raise PermissionNotFoundException(
+                f"El permiso con ID '{permission.id}' no existe."
+            )
+        try:
+            permissionToUpdate = PermissionMapper.dtoToEntity(permission)
+            updatedPermission = self.permissionRepository.update(permissionToUpdate)
+            self.session.commit()
+            return updatedPermission
+        except Exception as e:
+            self.session.rollback()
+            self.log.error(f"updatePermission - Excepción inesperada: {e}")
+            raise PermissionUpdateException(
+                "Error inesperado al actualizar el permiso."
+            ) from e
+
+            

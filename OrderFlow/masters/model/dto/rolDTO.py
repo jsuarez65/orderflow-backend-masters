@@ -1,14 +1,12 @@
-from dataclasses import dataclass
-from typing import Optional
+from pydantic import BaseModel
+from dataclasses import dataclass, asdict
 
-@dataclass
-class RolDTO:
-    rol: Optional[str] = None
+class RolDTO(BaseModel):
+    rol: str | None = None
     
-    def validate(self) -> bool:
-        if not self.rol or not self.rol.strip():
-            return False
-        return True
-    
-    
+    @classmethod
+    def of (cls, data: dict) -> "RolDTO":
+        return cls(
+            rol=data.get("rol")
+        )
     

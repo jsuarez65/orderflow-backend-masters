@@ -1,104 +1,135 @@
-from flask import Blueprint, request, jsonify, Response
-from services.RolService import RolService
+from fastapi import APIRouter, Depends, Response
+from sqlalchemy.orm import Session
+
+from exceptions.rol_exceptions import (
+    RolAlreadyExistsException,
+    RolNotFoundException,
+    RolUpdateException,
+    RolCreationException
+)
+
+from model.dto.OperationResultDTO import OperationResultDTO
 from model.dto.rolDTO import RolDTO
+from services.RolService import RolService
 from configuration.LogConfiguration import LogConfiguration
-
-rolBp = Blueprint('rolBp', __name__)
-log = LogConfiguration.getLogger()
+from configuration.DatabaseConfiguration import sessionLocal
 
 
-@rolBp.route('/roles', methods=['POST'])
-def createRol() -> tuple[Response, int]:
-    data = request.get_json(silent=True) or {}
-    log.info(f"createRol - Creando rol con datos: {data}")
+
+rolRouter = APIRouter(prefix="/master/rol", tags=["Rol"])
+
+def getSession():
+    session = sessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
+
+@rolRouter.post("/roles", status_code=201, response_model=OperationResultDTO)
+def create(rolData: RolDTO, response: Response,
+           session: Session = Depends(getSession)) -> OperationResultDTO:
+    log = LogConfiguration.getLogger()
+    log.info(f"createRol - Creando rol con datos: {rolData}")
 
     try:
-        dto = RolDTO(**data)
-    except TypeError as e:
-        log.warning(f"createRol - Datos inválidos: {e}")
-        return jsonify({'error': f'Datos inválidos: {e}'}), 400
+        RolService = RolService(log, session=session)
+        createdRol = RolService.create(rolData)
+        
+        return OperationResultDTO(
+            data=createdRol.model_dump(mode="json")
+        )
+    except RolAlreadyExistsException as e:
+        response.status_code = 409
+        return OperationResultDTO(message=str(e))
 
-    if not dto.validate():
-        log.warning("createRol - Validación fallida: nombre del rol es obligatorio.")
-        return jsonify({'error': 'El nombre del rol es obligatorio y no puede estar vacío.'}), 400
-
-    service = RolService(log)
-    created, error, status = service.createRol(dto)  
-
-    if error:
-        log.warning(f"createRol - {error}")
-        return jsonify({'error': error}), status
-
-    log.info(f"createRol - Rol creado exitosamente: {created.rol}")
-    return jsonify(created.to_dict() if hasattr(created, 'to_dict') else {'rol': created.rol}), status
-
-
-@rolBp.route('/roles/<string:nameRol>', methods=['GET'])
-def getRol(nameRol: str) -> tuple[Response, int]:
-    log.info(f"getRol - Buscando rol: {nameRol}")
-
-    service = RolService(log)
-    dto, error, status = service.getRol(nameRol)
-
-    if error:
-        return jsonify({'error': error}), status
-
-    return jsonify({'rol': dto.rol}), status
+    except RolCreationException:
+        log.exception("createRol - Error al crear el rol")
+        response.status_code = 500
+        return OperationResultDTO(
+            message="Error interno al crear el rol."
+        )
+    except Exception:
+        log.exception("createRol - Error inesperado al crear el rol")
+        response.status_code = 500
+        return OperationResultDTO(
+            message="Error interno inesperado al crear el rol."
+        )
 
 
-@rolBp.route('/roles', methods=['GET'])
-def getAllRoles() -> tuple[Response, int]:
-    log.info("getAllRoles - Obteniendo todos los roles")
+@rolRouter.get("", response_model=OperationResultDTO)
+def getAll(response: Response, session: Session = Depends(getSession)) -> OperationResultDTO:
+    
+    log = LogConfiguration.getLogger()
+    log.info(f"getAll - Buscando todos los roles")
 
-    service = RolService(log)
-    roles, error, status = service.getAllRoles()  
+    
+    try:
+        rolservice = RolService(log, session=session)
+        roles = rolservice.getAllRoles()
+        
+        return OperationResultDTO(
+            data=[roles]
+        )
+    except Exception:
+        log.exception(f"getAll - Error al recuperar los roles")
+        response.status_code = 500
+        return OperationResultDTO(
+            message="Error interno al recuperar los roles."
+        )
 
-    if error:
-        return jsonify({'error': error}), status
-
-    log.info(f"getAllRoles - Total: {len(roles)}")
-    return jsonify([{'rol': r.rol} for r in roles]), status
 
 
-@rolBp.route('/roles/<string:nameRol>', methods=['PUT'])
-def updateRol(nameRol: str) -> tuple[Response, int]:  
-    data = request.get_json(silent=True) or {}
-    log.info(f"updateRol - Actualizando rol '{nameRol}' con datos: {data}")
+@rolRouter.put("", response_model=OperationResultDTO)
+def update(rolData: RolDTO, response: Response, session: Session = Depends(getSession)) -> OperationResultDTO:
+    log = LogConfiguration.getLogger()
+    log.info(f"updateRol - Actualizando rol con datos: {rolData}")
 
     try:
-        dto = RolDTO(**data)
-    except TypeError as e:
-        log.warning(f"updateRol - Datos inválidos: {e}")
-        return jsonify({'error': f'Datos inválidos: {e}'}), 400
+        rolService = RolService(log, session=session)
+        updatedRol = rolService.update(rolData)
 
-    if not dto.validate():
-        log.warning("updateRol - Validación fallida.")
-        return jsonify({'error': 'El nuevo nombre del rol es obligatorio.'}), 400
+        return OperationResultDTO(
+            data=updatedRol.model_dump(mode="json")
+        )
+    except RolNotFoundException as e:
+        response.status_code = 404
+        return OperationResultDTO(message=str(e))
 
-    service = RolService(log)
-    updated, error, status = service.updateRol(nameRol, dto)
+    except RolUpdateException:
+        log.exception("updateRol - Error al actualizar el rol")
+        response.status_code = 500
+        return OperationResultDTO(
+            message="Error interno al actualizar el rol."
+        )
+    except Exception:
+        log.exception("updateRol - Error inesperado al actualizar el rol")
+        response.status_code = 500
+        return OperationResultDTO(
+            message="Error interno inesperado al actualizar el rol."
+        )
 
-    if error:
-        log.warning(f"updateRol - {error}")
-        return jsonify({'error': error}), status
 
-    log.info(f"updateRol - Rol '{nameRol}' actualizado a '{updated.rol}'.")
-    return jsonify({'message': f"Rol '{nameRol}' actualizado a '{updated.rol}' exitosamente."}), status
+@rolRouter.delete("/{rol_id}", response_model=OperationResultDTO)
+def delete(rol_id: int, response: Response, session: Session = Depends(getSession)) -> OperationResultDTO:
+    log = LogConfiguration.getLogger()
+    log.info(f"deleteRol - Eliminando rol con ID: {rol_id}")
 
+    try:
+        rolService = RolService(log, session=session)
+        rolService.delete(rol_id)
 
-@rolBp.route('/roles/<string:nameRol>', methods=['DELETE'])
-def deleteRol(nameRol: str) -> tuple[Response, int]:
-    log.info(f"deleteRol - Eliminando rol: {nameRol}")
+        return OperationResultDTO(
+            message=f"Rol con ID {rol_id} eliminado exitosamente."
+        )
+    except RolNotFoundException as e:
+        response.status_code = 404
+        return OperationResultDTO(message=str(e))
 
-    service = RolService(log)
-    deleted, error, status = service.deleteRol(nameRol)  
-
-    if error:
-        log.warning(f"deleteRol - {error}")
-        return jsonify({'error': error}), status
-
-    log.info(f"deleteRol - Rol '{nameRol}' eliminado exitosamente.")
-    return jsonify({
-        'message': f"Rol '{nameRol}' eliminado exitosamente.",
-        'rol': deleted.rol
-    }), status
+    except Exception:
+        log.exception("deleteRol - Error inesperado al eliminar el rol")
+        response.status_code = 500
+        return OperationResultDTO(
+            message="Error interno inesperado al eliminar el rol."
+        )
